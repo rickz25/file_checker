@@ -1,0 +1,86 @@
+<?php
+/**
+ * s => String
+ * i => Integer/number
+ * d => Double with 2 decimal places
+ * f => Float
+ * d3 =>Double with 3 decimal places
+*/
+return 
+[
+    'header'=>[
+         ['CCCODE','s']
+        ,['MERCHANT_NAME','s']
+        ,['TRN_DATE','s']
+        ,['NO_TRN','i']
+    ],
+    'transaction' =>[
+         ['CDATE','s']
+        ,['TRN_TIME','s']
+        ,['TER_NO','i']
+        ,['TRANSACTION_NO','i']
+        ,['GROSS_SLS','d']
+        ,['VAT_AMNT','d']
+        ,['VATABLE_SLS','d']
+        ,['NONVAT_SLS','d']
+        ,['VATEXEMPT_SLS','d']
+        ,['VATEXEMPT_AMNT','d']
+        ,['LOCAL_TAX','d']
+        ,['PWD_DISC','d']
+        ,['SNRCIT_DISC','d']
+        ,['EMPLO_DISC','d']
+        ,['AYALA_DISC','d']
+        ,['STORE_DISC','d']
+        ,['OTHER_DISC','d']
+        ,['REFUND_AMT','d']
+        ,['SCHRGE_AMT','d']
+        ,['OTHER_SCHR','d']
+        ,['CASH_SLS','d']
+        ,['CARD_SLS','d']
+        ,['EPAY_SLS','d']
+        ,['DCARD_SLS','d']
+        ,['OTHERSL_SLS','d']
+        ,['CHECK_SLS','d']
+        ,['GC_SLS','d']
+        ,['MASTERCARD_SLS','d']
+        ,['VISA_SLS','d']
+        ,['AMEX_SLS','d']
+        ,['DINERS_SLS','d']
+        ,['JCB_SLS','d']
+        ,['GCASH_SLS','d']
+        ,['PAYMAYA_SLS','d']
+        ,['ALIPAY_SLS','d']
+        ,['WECHAT_SLS','d']
+        ,['GRAB_SLS','d']
+        ,['FOODPANDA_SLS','d']
+        ,['MASTERDEBIT_SLS','d']
+        ,['VISADEBIT_SLS','d']
+        ,['PAYPAL_SLS','d']
+        ,['ONLINE_SLS','d']
+        ,['OPEN_SALES','d']
+        ,['OPEN_SALES_2','d']
+        ,['OPEN_SALES_3','d']
+        ,['OPEN_SALES_4','d']
+        ,['OPEN_SALES_5','d']
+        ,['OPEN_SALES_6','d']
+        ,['OPEN_SALES_7','d']
+        ,['OPEN_SALES_8','d']
+        ,['OPEN_SALES_9','d']
+        ,['OPEN_SALES_10','d']
+        ,['OPEN_SALES_11','d']
+        ,['GC_EXCESS','d']
+        ,['MOBILE_NO','']
+        ,['NO_CUST','i']
+        ,['TRN_TYPE','s']
+        ,['SLS_FLAG','s']
+        ,['VAT_PCT','d']
+        ,['QTY_SLD','d3']
+    ],
+    'item'=>[
+        ['QTY','d3']
+        ,['ITEMCODE','s']
+        ,['PRICE','d']
+        ,['LDISC','d']
+    ]
+
+];
