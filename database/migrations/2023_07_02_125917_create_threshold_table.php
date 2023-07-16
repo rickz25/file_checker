@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 class CreateThresholdTable extends Migration
 {
@@ -18,6 +19,11 @@ class CreateThresholdTable extends Migration
             $table->string('value_from');
             $table->string('value_to');
         });
+
+        DB::table('threshold')->insert([
+            'value_from'=>'-0.99',
+            'value_to'=>'0.99'
+         ]);
     }
 
     /**

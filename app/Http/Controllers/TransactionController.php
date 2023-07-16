@@ -49,6 +49,7 @@ class TransactionController extends Controller
             $errorMessage .= $e->getMessage();
         }
         if ($errorMessage != "") {
+            $param['type'] = 0;
             $param['error_type'] = 'Transaction';
             $param['filename'] = $filename;
             $param['merchant_code'] = $merchant_code;

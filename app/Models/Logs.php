@@ -16,7 +16,7 @@ class Logs extends Model
     {
         
         $Logs =  new Logs;
-        $Logs->type = $params['type'];
+        $Logs->type = isset($params['type']) ? $params['type'] : 0;
         $Logs->error_type = $params['error_type'];
         $Logs->filename = $params['filename'];
         $Logs->merchant_code = $params['merchant_code'];

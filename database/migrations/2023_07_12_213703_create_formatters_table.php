@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 class CreateFormattersTable extends Migration
 {
@@ -18,6 +19,9 @@ class CreateFormattersTable extends Migration
             $table->integer('merchant_code_length');
             $table->timestamps();
         });
+        DB::table('formatters')->insert([
+            'merchant_code_length'=>20,
+         ]);
     }
 
     /**

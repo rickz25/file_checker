@@ -34,6 +34,7 @@ class CheckerController extends Controller
     {
         TransactionValidation::truncate();
         DailyValidation::truncate();
+        CrossValidation::truncate();
         Logs::truncate();
         filename::truncate();
         $CheckerModel = new Checker;
@@ -157,6 +158,7 @@ class CheckerController extends Controller
             }
 
             $queryTrans = $Transaction->validateTransaction();
+            // echo "<pre>"; print_r($queryTrans); "</pre>"; die;
             foreach ($queryTrans as $q) {
                 $transaction_no = trim($q->TRANSNO);
                 $TER_NO = trim($q->TER_NO);
@@ -176,25 +178,25 @@ class CheckerController extends Controller
 
                 if (!$this->in_range($q->gross, $val1, $val2)) {
                     $param['type'] = 0;
-                    $message = "GROSS discrepancy (" . $this->formatted(abs($q->gross)) . ")";
+                    $message = "Discrepancy (" . $this->formatted(abs($q->gross)) . ") GROSS_SLS (".$this->formatted($q->gross_sls).") and GROSS TOTAL (".$this->formatted($q->gross_sum).")";
                     $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->payment, $val1, $val2)) {
                     $param['type'] = 0;
-                    $message = "PAYMENT discrepancy (" . $this->formatted(abs($q->payment)) . ")";
+                    $message = "Discrepancy (" . $this->formatted(abs($q->payment)) . ") PAYMENT (".$this->formatted($q->payment_sls).") and PAYMENT TOTAL (".$this->formatted($q->payment_sum).")";
                     $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->card, $val1, $val2)) {
                     $param['type'] = 0;
-                    $message = "CARD discrepancy (" . $this->formatted(abs($q->card)) . ")";
+                    $message = "Discrepancy (" . $this->formatted(abs($q->card)) . ") CARD_SLS (".$this->formatted($q->card_sls).") and CARD TOTAL (".$this->formatted($q->card_sum).")";
                     $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->epay, $val1, $val2)) {
                     $param['type'] = 0;
-                    $message = "EPAY discrepancy (" . $this->formatted(abs($q->epay)) . ")";
+                    $message = "Discrepancy (" . $this->formatted(abs($q->epay)) . ") EPAY_SLS (".$this->formatted($q->epay_sls).") and EPAY TOTAL (".$this->formatted($q->epay_sum).")";
                     $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
@@ -311,42 +313,42 @@ class CheckerController extends Controller
                 if (!$this->in_range($q->gross, $val1, $val2)) {
                     $error = 1;
                     $param['type'] = 0;
-                    $message = "GROSS discrepancy (" . $this->formatted(abs($q->gross)) . ")";
+                    $message = "Discrepancy (" . $this->formatted(abs($q->gross)) . ") GROSS_SLS (".$this->formatted($q->gross_sls).") and GROSS TOTAL (".$this->formatted($q->gross_sum).")";
                     $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->discount, $val1, $val2)) {
                     $error = 1;
                     $param['type'] = 0;
-                    $message = "DISCOUNT discrepancy (" . $this->formatted(abs($q->discount)) . ")";
+                    $message = "Discrepancy (" . $this->formatted(abs($q->DSICOUNT)) . ") DISCOUNT_SLS (".$this->formatted($q->DSICOUNT_sls).") and DSICOUNT TOTAL (".$this->formatted($q->DSICOUNT_sum).")";
                     $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->no_disc, $val1, $val2)) {
                     $error = 1;
                     $param['type'] = 0;
-                    $message = "NO_DISC discrepancy (" . $this->formatted(abs($q->no_disc)) . ")";
+                    $message = "Discrepancy (" . $this->formatted(abs($q->no_disc)) . ") NO_DISC_SLS (".$this->formatted($q->no_disc_sls).") and NO_DISC TOTAL (".$this->formatted($q->no_disc_sum).")";
                     $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->card, $val1, $val2)) {
                     $error = 1;
                     $param['type'] = 0;
-                    $message = "CARD discrepancy (" . $this->formatted(abs($q->card)) . ")";
+                    $message = "Discrepancy (" . $this->formatted(abs($q->card)) . ") CARD_SLS (".$this->formatted($q->card_sls).") and CARD TOTAL (".$this->formatted($q->card_sum).")";
                     $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->epay, $val1, $val2)) {
                     $error = 1;
                     $param['type'] = 0;
-                    $message = "EPAY discrepancy (" . $this->formatted(abs($q->epay)) . ")";
+                    $message = "Discrepancy (" . $this->formatted(abs($q->epay)) . ") EPAY_SLS (".$this->formatted($q->epay_sls).") and EPAY TOTAL (".$this->formatted($q->epay_sum).")";
                     $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->dcard, $val1, $val2)) {
                     $error = 1;
                     $param['type'] = 0;
-                    $message = "DCARD discrepancy (" . $this->formatted(abs($q->dcard)) . ")";
+                    $message = "Discrepancy (" . $this->formatted(abs($q->dcard)) . ") DCARD_SLS (".$this->formatted($q->dcard_sls).") and DCARD TOTAL (".$this->formatted($q->dcard_sum).")";
                     $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
@@ -354,13 +356,14 @@ class CheckerController extends Controller
                     $error = 1;
                     $param['type'] = 0;
                     $message = "NEW GRAND TOTAL discrepancy (" . $this->formatted(abs($q->new_grand_total)) . ")";
+                    $message = "Discrepancy (" . $this->formatted(abs($q->new_grand_total)) . ") NEW_GRNTOT (".$this->formatted($q->new_grand_total_sls).") and NEW_GRNTOT TOTAL (".$this->formatted($q->new_grand_total_sum).")";
                     $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->netsales, $val1, $val2)) {
                     $error = 1;
                     $param['type'] = 0;
-                    $message = "NETSALES discrepancy (" . $this->formatted(abs($q->netsales)) . ")";
+                    $message = "Discrepancy (" . $this->formatted(abs($q->netsales)) . ") NETSALES (".$this->formatted($q->netsales_sls).") and NETSALES TOTAL (".$this->formatted($q->netsales_sum).")";
                     $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
@@ -375,7 +378,7 @@ class CheckerController extends Controller
                         $params['merchant_code'] = $merchant_code;
                         $params['terminal_no'] = $TER_NO;
                         $cross = $CrossValidation->validateSales($params);
-                        // echo "<pre>"; print_r($cross); "</pre>"; die;
+                        //echo "<pre>"; print_r($cross); "</pre>"; die;
 
                         $param['error_type'] = 'Success';
                         $param['filename'] = $filename;
