@@ -197,17 +197,18 @@
 
         /* hhh */
 
-        table.dataTable tbody th, table.dataTable tbody td button {
-        background-color: #0D6EFD;
-        color: #fff;
+        table.dataTable tbody th, table.dataTable tbody td a {
+            text-decoration: none;
+        /* background-color: #0D6EFD; */
+        /* color: #0e0c0c;
         padding: 1px 3px 1px 3px;
         margin: 0px;
         line-height: 1.0;
         vertical-align: middle;
         text-align: center;
         border: 0.5px solid #0D6EFD;
-        font-size: 90%;
-        outline: none;
+        font-size: 90%; */
+        /* outline: none; */
         }
     </style>
 </head>

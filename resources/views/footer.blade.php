@@ -102,10 +102,10 @@
 										"overflow": "hidden"
 									})
 									//add button only for this long cells
-									$(cell).append($("<button>Read more</button>"));
+									$(cell).append($("<a href='#'>view more..</a>"));
 								}
 								//get IF of this new button
-								$btn = $(cell).find("button");	
+								$btn = $(cell).find("a");	
 								//store flag
 								$cell.data("isLess", true);
 								//eval click on button
@@ -114,7 +114,7 @@
 								  var isLess = $cell.data("isLess");
 								  //ternary check if this flag is set and manipulte/reverse button
 								  $content.css("height", isLess ? "auto" : "40px")
-								  $(this).text(isLess ? 'Read less' : 'Read more')
+								  $(this).text(isLess ? 'view less.' : 'view more..')
 								  //invert flag
 								  $cell.data("isLess", !isLess)
 								})

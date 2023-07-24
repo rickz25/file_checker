@@ -177,32 +177,73 @@ class CheckerController extends Controller
                 $param['terminal_no'] = $TER_NO;
 
                 if (!$this->in_range($q->gross, $val1, $val2)) {
+                    
+                    $message = "Discrepancy (<b style='color:red;'>" . $this->formatted(abs($q->gross)) . "</b>) GROSS_SLS (<b>".$this->formatted($q->gross_sls)."</b>) and GROSS TOTAL (<b>".$this->formatted($q->gross_sum)."</b>) <br>";
+                    $arr_column = ['VAT_AMNT', 'VATABLE_SLS', 'NONVAT_SLS', 'VATEXEMPT_SLS', 'VATEXEMPT_AMNT', 'LOCAL_TAX', 'PWD_DISC', 'SNRCIT_DISC', 'EMPLO_DISC', 'AYALA_DISC', 'STORE_DISC', 'OTHER_DISC', 'SCHRGE_AMT', 'OTHER_SCHR'];
+                    $searchQuery  = $Transaction->searchQuery($q->gross, $arr_column, $param);
+                    foreach($searchQuery as $t){
+                        foreach($arr_column as $col){
+                            $val = $t->$col;
+                            $message .="$col = <b>$val</b> <br>"; 
+                        }
+                    }
                     $param['type'] = 0;
-                    $message = "Discrepancy (" . $this->formatted(abs($q->gross)) . ") GROSS_SLS (".$this->formatted($q->gross_sls).") and GROSS TOTAL (".$this->formatted($q->gross_sum).")";
                     $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->payment, $val1, $val2)) {
+                    $message = "Discrepancy (<b style='color:red;'>" . $this->formatted(abs($q->payment)) . "</b>) PAYMENT (<b>".$this->formatted($q->payment_sls)."</b>) and PAYMENT TOTAL (<b>".$this->formatted($q->payment_sum)."</b>) <br>";
+                    $arr_column = ['CASH_SLS', 'OTHERSL_SLS', 'CHECK_SLS', 'GC_SLS', 'MASTERCARD_SLS', 'VISA_SLS', 'AMEX_SLS', 'DINERS_SLS', 'JCB_SLS', 'GCASH_SLS', 'PAYMAYA_SLS', 'ALIPAY_SLS', 'WECHAT_SLS', 'GRAB_SLS', 'FOODPANDA_SLS', 'MASTERDEBIT_SLS', 'VISADEBIT_SLS', 'PAYPAL_SLS', 'ONLINE_SLS', 'OPEN_SALES', 'OPEN_SALES_2', 'OPEN_SALES_3', 'OPEN_SALES_4', 'OPEN_SALES_5', 'OPEN_SALES_6', 'OPEN_SALES_7', 'OPEN_SALES_8', 'OPEN_SALES_9', 'OPEN_SALES_10', 'OPEN_SALES_11', 'GC_EXCESS'];
+                    $searchQuery  = $Transaction->searchQuery($q->gross, $arr_column, $param);
+                    foreach($searchQuery as $t){
+                        foreach($arr_column as $col){
+                            $val = $t->$col;
+                            $message .="$col = <b>$val</b> <br>"; 
+                        }
+                    }
                     $param['type'] = 0;
-                    $message = "Discrepancy (" . $this->formatted(abs($q->payment)) . ") PAYMENT (".$this->formatted($q->payment_sls).") and PAYMENT TOTAL (".$this->formatted($q->payment_sum).")";
                     $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->card, $val1, $val2)) {
+                    $message = "Discrepancy (<b style='color:red;'>" . $this->formatted(abs($q->card)) . "</b>) CARD_SLS (<b>".$this->formatted($q->card_sls)."</b>) and CARD TOTAL (<b>".$this->formatted($q->card_sum)."</b>) <br>";
+                    $arr_column = ['MASTERCARD_SLS', 'VISA_SLS', 'AMEX_SLS', 'DINERS_SLS', 'JCB_SLS'];
+                    $searchQuery  = $Transaction->searchQuery($q->gross, $arr_column, $param);
+                    foreach($searchQuery as $t){
+                        foreach($arr_column as $col){
+                            $val = $t->$col;
+                            $message .="$col = <b>$val</b> <br>"; 
+                        }
+                    }
                     $param['type'] = 0;
-                    $message = "Discrepancy (" . $this->formatted(abs($q->card)) . ") CARD_SLS (".$this->formatted($q->card_sls).") and CARD TOTAL (".$this->formatted($q->card_sum).")";
                     $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->epay, $val1, $val2)) {
+                    $message = "Discrepancy (<b style='color:red;'>" . $this->formatted(abs($q->epay)) . "</b>) EPAY_SLS (<b>".$this->formatted($q->epay_sls)."</b>) and EPAY TOTAL (<b>".$this->formatted($q->epay_sum)."</b>) <br>";
+                    $arr_column = ['GCASH_SLS', 'PAYMAYA_SLS', 'ALIPAY_SLS', 'WECHAT_SLS'];
+                    $searchQuery  = $Transaction->searchQuery($q->gross, $arr_column, $param);
+                    foreach($searchQuery as $t){
+                        foreach($arr_column as $col){
+                            $val = $t->$col;
+                            $message .="$col = <b>$val</b> <br>"; 
+                        }
+                    }
                     $param['type'] = 0;
-                    $message = "Discrepancy (" . $this->formatted(abs($q->epay)) . ") EPAY_SLS (".$this->formatted($q->epay_sls).") and EPAY TOTAL (".$this->formatted($q->epay_sum).")";
                     $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->dcard, $val1, $val2)) {
+                    $message = "DCARD discrepancy (<b style='color:red;'>" . $this->formatted(abs($q->dcard)) . "</b>) <br>";
+                    $arr_column = ['MASTERDEBIT_SLS', 'VISADEBIT_SLS'];
+                    $searchQuery  = $Transaction->searchQuery($q->gross, $arr_column, $param);
+                    foreach($searchQuery as $t){
+                        foreach($arr_column as $col){
+                            $val = $t->$col;
+                            $message .="$col = <b>$val</b> <br>"; 
+                        }
+                    }
                     $param['type'] = 0;
-                    $message = "DCARD discrepancy (" . $this->formatted(abs($q->dcard)) . ")";
                     $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
@@ -311,60 +352,123 @@ class CheckerController extends Controller
                 $error = 0;
 
                 if (!$this->in_range($q->gross, $val1, $val2)) {
+                    $message = "Discrepancy (<b style='color:red;'>" . $this->formatted(abs($q->gross)) . "</b>) GROSS_SLS (<b>".$this->formatted($q->gross_sls)."</b>) and GROSS TOTAL (<b>".$this->formatted($q->gross_sum)."</b>) </br>";
+                    $arr_column = ['VAT_AMNT', 'VATABLE_SLS', 'NONVAT_SLS', 'VATEXEMPT_SLS', 'VATEXEMPT_AMNT', 'LOCAL_TAX', 'VOID_AMNT', 'DISCOUNTS', 'REFUND_AMT', 'SCHRGE_AMT'];
+                    $searchQuery  = $Daily->searchQuery($q->gross, $arr_column, $param);
+                    foreach($searchQuery as $t){
+                        foreach($arr_column as $col){
+                            $val = $t->$col;
+                            $message .="$col = <b>$val</b> <br>"; 
+                        }
+                    }
+                    $param['error_description'] = $message;
                     $error = 1;
                     $param['type'] = 0;
-                    $message = "Discrepancy (" . $this->formatted(abs($q->gross)) . ") GROSS_SLS (".$this->formatted($q->gross_sls).") and GROSS TOTAL (".$this->formatted($q->gross_sum).")";
-                    $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->discount, $val1, $val2)) {
+                    $message = "Discrepancy (<b style='color:red;'>" . $this->formatted(abs($q->DSICOUNT)) . "</b>) DISCOUNT_SLS (<b>".$this->formatted($q->DSICOUNT_sls)."</b>) and DSICOUNT TOTAL (<b>".$this->formatted($q->DSICOUNT_sum)."</b>) </br>";
+                    $arr_column = ['SNRCIT_DISC', 'PWD_DISC', 'EMPLO_DISC', 'AYALA_DISC', 'STORE_DISC', 'OTHER_DISC'];
+                    $searchQuery  = $Daily->searchQuery($q->gross, $arr_column, $param);
+                    foreach($searchQuery as $t){
+                        foreach($arr_column as $col){
+                            $val = $t->$col;
+                            $message .="$col = <b>$val</b> <br>"; 
+                        }
+                    }
+                    $param['error_description'] = $message;
                     $error = 1;
                     $param['type'] = 0;
-                    $message = "Discrepancy (" . $this->formatted(abs($q->DSICOUNT)) . ") DISCOUNT_SLS (".$this->formatted($q->DSICOUNT_sls).") and DSICOUNT TOTAL (".$this->formatted($q->DSICOUNT_sum).")";
-                    $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->no_disc, $val1, $val2)) {
+                    $message = "Discrepancy (<b style='color:red;'>" . $this->formatted(abs($q->no_disc)) . "</b>) NO_DISC_SLS (<b>".$this->formatted($q->no_disc_sls)."</b>) and NO_DISC TOTAL (<b>".$this->formatted($q->no_disc_sum)."</b>) </br>";
+                    $arr_column = ['NO_SNRCIT', 'NO_PWD', 'NO_EMPLO', 'NO_AYALA', 'NO_STORE', 'NO_OTHER_DISC'];
+                    $searchQuery  = $Daily->searchQuery($q->gross, $arr_column, $param);
+                    foreach($searchQuery as $t){
+                        foreach($arr_column as $col){
+                            $val = $t->$col;
+                            $message .="$col = <b>$val</b> <br>"; 
+                        }
+                    }
+                    $param['error_description'] = $message;
                     $error = 1;
                     $param['type'] = 0;
-                    $message = "Discrepancy (" . $this->formatted(abs($q->no_disc)) . ") NO_DISC_SLS (".$this->formatted($q->no_disc_sls).") and NO_DISC TOTAL (".$this->formatted($q->no_disc_sum).")";
-                    $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->card, $val1, $val2)) {
+                    $message = "Discrepancy (<b style='color:red;'>" . $this->formatted(abs($q->card)) . "</b>) CARD_SLS (<b>".$this->formatted($q->card_sls)."</b>) and CARD TOTAL (<b>".$this->formatted($q->card_sum)."</b>) </br>";
+                    $arr_column = ['MASTERCARD_SLS', 'VISA_SLS', 'AMEX_SLS', 'DINERS_SLS', 'JCB_SLS'];
+                    $searchQuery  = $Daily->searchQuery($q->gross, $arr_column, $param);
+                    foreach($searchQuery as $t){
+                        foreach($arr_column as $col){
+                            $val = $t->$col;
+                            $message .="$col = <b>$val</b> <br>"; 
+                        }
+                    }
+                    $param['error_description'] = $message;
                     $error = 1;
                     $param['type'] = 0;
-                    $message = "Discrepancy (" . $this->formatted(abs($q->card)) . ") CARD_SLS (".$this->formatted($q->card_sls).") and CARD TOTAL (".$this->formatted($q->card_sum).")";
-                    $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->epay, $val1, $val2)) {
+                    $message = "Discrepancy (<b style='color:red;'>" . $this->formatted(abs($q->epay)) . "</b>) EPAY_SLS (<b>".$this->formatted($q->epay_sls)."</b>) and EPAY TOTAL (<b>".$this->formatted($q->epay_sum)."</b>) </br>";
+                    $arr_column = ['GCASH_SLS', 'PAYMAYA_SLS', 'ALIPAY_SLS', 'WECHAT_SLS'];
+                    $searchQuery  = $Daily->searchQuery($q->gross, $arr_column, $param);
+                    foreach($searchQuery as $t){
+                        foreach($arr_column as $col){
+                            $val = $t->$col;
+                            $message .="$col = <b>$val</b> <br>"; 
+                        }
+                    }
+                    $param['error_description'] = $message;
                     $error = 1;
                     $param['type'] = 0;
-                    $message = "Discrepancy (" . $this->formatted(abs($q->epay)) . ") EPAY_SLS (".$this->formatted($q->epay_sls).") and EPAY TOTAL (".$this->formatted($q->epay_sum).")";
-                    $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->dcard, $val1, $val2)) {
+                    $message = "Discrepancy (<b style='color:red;'>" . $this->formatted(abs($q->dcard)) . "</b>) DCARD_SLS (<b>".$this->formatted($q->dcard_sls)."</b>) and DCARD TOTAL (<b>".$this->formatted($q->dcard_sum)."</b>) </br>";
+                    $arr_column = ['MASTERDEBIT_SLS', 'VISADEBIT_SLS'];
+                    $searchQuery  = $Daily->searchQuery($q->gross, $arr_column, $param);
+                    foreach($searchQuery as $t){
+                        foreach($arr_column as $col){
+                            $val = $t->$col;
+                            $message .="$col = <b>$val</b> <br>"; 
+                        }
+                    }
+                    $param['error_description'] = $message;
                     $error = 1;
                     $param['type'] = 0;
-                    $message = "Discrepancy (" . $this->formatted(abs($q->dcard)) . ") DCARD_SLS (".$this->formatted($q->dcard_sls).") and DCARD TOTAL (".$this->formatted($q->dcard_sum).")";
-                    $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->new_grand_total, $val1, $val2)) {
+                    $message = "Discrepancy (<b style='color:red;'>" . $this->formatted(abs($q->new_grand_total)) . "</b>) NEW_GRNTOT (<b>".$this->formatted($q->new_grand_total_sls)."</b>) and NEW_GRNTOT TOTAL (<b>".$this->formatted($q->new_grand_total_sum)."</b>) </br>";
+                    $arr_column = ['VAT_AMNT', 'VATABLE_SLS', 'NONVAT_SLS', 'VATEXEMPT_SLS', 'OLD_GRNTOT', 'LOCAL_TAX'];
+                    $searchQuery  = $Daily->searchQuery($q->gross, $arr_column, $param);
+                    foreach($searchQuery as $t){
+                        foreach($arr_column as $col){
+                            $val = $t->$col;
+                            $message .="$col = <b>$val</b> <br>"; 
+                        }
+                    }
+                    $param['error_description'] = $message;
                     $error = 1;
                     $param['type'] = 0;
-                    $message = "NEW GRAND TOTAL discrepancy (" . $this->formatted(abs($q->new_grand_total)) . ")";
-                    $message = "Discrepancy (" . $this->formatted(abs($q->new_grand_total)) . ") NEW_GRNTOT (".$this->formatted($q->new_grand_total_sls).") and NEW_GRNTOT TOTAL (".$this->formatted($q->new_grand_total_sum).")";
-                    $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 if (!$this->in_range($q->netsales, $val1, $val2)) {
+                    $message = "Discrepancy (<b style='color:red;'>" . $this->formatted(abs($q->netsales)) . "</b>) NETSALES (<b>".$this->formatted($q->netsales_sls)."</b>) and NETSALES TOTAL (<b>".$this->formatted($q->netsales_sum)."</b>) </br>";
+                    $arr_column = ['VATABLE_SLS', 'NONVAT_SLS', 'VATEXEMPT_SLS'];
+                    $searchQuery  = $Daily->searchQuery($q->gross, $arr_column, $param);
+                    foreach($searchQuery as $t){
+                        foreach($arr_column as $col){
+                            $val = $t->$col;
+                            $message .="$col = <b>$val</b> <br>"; 
+                        }
+                    }
+                    $param['error_description'] = $message;
                     $error = 1;
                     $param['type'] = 0;
-                    $message = "Discrepancy (" . $this->formatted(abs($q->netsales)) . ") NETSALES (".$this->formatted($q->netsales_sls).") and NETSALES TOTAL (".$this->formatted($q->netsales_sum).")";
-                    $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
                 

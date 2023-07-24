@@ -65,4 +65,17 @@ class DailyValidation extends Model
         ->groupBy('CCCODE', 'TRN_DATE', 'TER_NO', 'FILENAME')
         ->get();
     }
+
+    public function searchQuery($search_value, $arr_column, $param){
+        $ter_no = $param['terminal_no'];
+        $trn_date = $param['transaction_date'];
+        $cccode = $param['merchant_code'];
+        $search_value = abs($search_value);
+        return DB::select("SELECT " . implode(',', $arr_column) . "
+        FROM daily_validations
+        WHERE CCCODE ='$cccode'
+        AND TRN_DATE = '$trn_date'
+        AND TER_NO = '$ter_no'
+        ;");
+    }
 }
