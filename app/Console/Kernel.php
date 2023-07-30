@@ -17,26 +17,6 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
 
-    /**
-     *
-     * Command for getting files and convert to json
-     * 
-     */
-
-        // $schedule->command('command:TenantSync')
-        //     ->withoutOverlapping()
-        //     ->runInBackground();
-
-    /**
-     *
-     * Command for 7 day old file delete
-     * 
-     */
-        // $schedule->command('command:delete_files')
-        //     ->withoutOverlapping()
-        //     ->runInBackground()
-        //     ->timezone('Asia/Manila')
-        //     ->dailyAt('13:00');
     }
 
     /**
