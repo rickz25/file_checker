@@ -22,7 +22,6 @@ class DailyController extends Controller
         $TRN_DATE = $arrFilename['trn_date'];
         $DailyMapping = new DailyValidation;
         $Logs = new Logs;
-        $CrossValidation = new CrossValidation;
         try {
             foreach ($filedata['TERMINALS'] as $daily) {
                 $TER_NO = $daily['TER_NO'];
@@ -53,7 +52,6 @@ class DailyController extends Controller
         } else {
 
             if($filedata['TERMINALS'][0]['NO_TRN'] !=0){
-                // $CrossValidation->validateSales($param);
                 $log = Logs::count();
                 if($log >0){
                     $result['status'] = 0;

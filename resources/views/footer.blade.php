@@ -55,18 +55,6 @@
                 processData: false,
                 dataType: 'json',
                 success: (data) => {
-
-                    // if(data['message']=='tally'){
-                    //     $('#alert-tally').show();
-                    // }else{
-                    //     $.each(data['filename'], (index, value) => {
-                    //         if(value['type']=='0'){
-                    //             $('#textarea2').append(value['name']+'\r\n');
-                    //         }else{
-                    //             $('#textarea1').append(value['name']+'\r\n');
-                    //         }
-                    //     });
-
                     $('#validation').show();
                     let checkerlogs = $('#tbl_validation').DataTable({
                         destroy: true,
@@ -74,62 +62,87 @@
                         "scrollCollapse": true,
                         processing: true,
                         dom: 'Bfrtip',
-                        buttons: ['csv', 'excel', 'colvis'],
-                        columnDefs: [
-{
-					targets: "_all",
-							createdCell: function(cell, cellData, rowData, rowIndex, colIndex) {
-								var $cell = $(cell)
-								if (cellData != null) {
-									var linebreakes = cellData.split(/\r\n|\r|\n|br/).length
-								} else {
-									var linebreakes = ''
-								}
-								//some debug
-								/*console.log("###cell:")
-								console.log($cell)
-								console.log("###amount line breakes: " + linebreakes)*/
-								
-								//jquery wrap a new class around the html structure
-								$(cell).contents().wrapAll("<div class='content'></div>");
-								//get the new class
-								var $content = $cell.find(".content");
-								//if there are more line as 12
-								if (linebreakes > 2) {
-									//change class and reduce height
-									$content.css({
-										"height": "40px",
-										"overflow": "hidden"
-									})
-									//add button only for this long cells
-									$(cell).append($("<a href='#'>view more..</a>"));
-								}
-								//get IF of this new button
-								$btn = $(cell).find("a");	
-								//store flag
-								$cell.data("isLess", true);
-								//eval click on button
-								$btn.click(function() {
-								  //create local variable and assign prev. stored flag
-								  var isLess = $cell.data("isLess");
-								  //ternary check if this flag is set and manipulte/reverse button
-								  $content.css("height", isLess ? "auto" : "40px")
-								  $(this).text(isLess ? 'view less.' : 'view more..')
-								  //invert flag
-								  $cell.data("isLess", !isLess)
-								})
-						  }
-					}
-          
-		]
+                        buttons: [{
+                                extend: 'csvHtml5',
+                                title: 'File Checker',
+                                titleAttr: 'Export CSV',
+                                text: 'CSV <i class="fa fa-arrow-circle-down"></i>',
+                            },
+                            {
+                                extend: 'excelHtml5',
+                                title: '',
+                                titleAttr: 'Export Excel',
+                                text: 'Excel <i class="fa fa-arrow-circle-down"></i>',
+                                filename: function() {
+                                    return 'File Checker';
+                                },
+                                customizeData: function(data) {
+                                    for (var i = 0; i < data.body
+                                        .length; i++) {
+                                        for (var j = 0; j < data.body[i]
+                                            .length; j++) {
+                                            data.body[i][j] = '\u200C' +
+                                                data.body[i][j];
+                                        }
+                                    }
+                                },
+                            },
+                            'colvis'
+                        ],
+                        columnDefs: [{
+                                targets: "_all",
+                                createdCell: function(cell, cellData, rowData,
+                                    rowIndex, colIndex) {
+                                    var $cell = $(cell)
+                                    if (cellData != null) {
+                                        var linebreakes = cellData.split(
+                                            /\r\n|\r|\n|br/).length
+                                    } else {
+                                        var linebreakes = ''
+                                    }
+
+                                    //jquery wrap a new class around the html structure
+                                    $(cell).contents().wrapAll(
+                                        "<div class='content'></div>");
+                                    //get the new class
+                                    var $content = $cell.find(".content");
+                                    //if there are more line as 12
+                                    if (linebreakes > 2) {
+                                        //change class and reduce height
+                                        $content.css({
+                                            "height": "40px",
+                                            "overflow": "hidden"
+                                        })
+                                        //add button only for this long cells
+                                        $(cell).append($(
+                                            "<a href='#'>view more..</a>"
+                                            ));
+                                    }
+                                    //get IF of this new button
+                                    $btn = $(cell).find("a");
+                                    //store flag
+                                    $cell.data("isLess", true);
+                                    //eval click on button
+                                    $btn.click(function() {
+                                        //create local variable and assign prev. stored flag
+                                        var isLess = $cell.data(
+                                            "isLess");
+                                        //ternary check if this flag is set and manipulte/reverse button
+                                        $content.css("height",
+                                            isLess ? "auto" :
+                                            "40px")
+                                        $(this).text(isLess ?
+                                            'view less.' :
+                                            'view more..')
+                                        //invert flag
+                                        $cell.data("isLess", !
+                                            isLess)
+                                    })
+                                }
+                            }
+
+                        ]
                     });
-                    // new $.fn.dataTable.Buttons( checkerlogs, {
-                    //     buttons: [
-                    //         'csv', 'excel', 'colvis'
-                    //     ]
-                    // } );
-                    // checkerlogs.buttons().container()
-                    // .appendTo( $('.col-sm-6:eq(0)', checkerlogs.table().container() ) );
 
                     checkerlogs.clear().draw();
 
