@@ -32,6 +32,8 @@ class CheckerController extends Controller
     }
     public function checkFile(Request $request)
     {
+
+        // echo "<pre>"; print_r( $request->file('files')); "</pre>"; die;
         TransactionValidation::truncate();
         DailyValidation::truncate();
         CrossValidation::truncate();
@@ -52,14 +54,15 @@ class CheckerController extends Controller
         if ($request->TotalFiles > 0) {
             $arrError = [];
             for ($x = 0; $x < $request->TotalFiles; $x++) {
-                if ($request->hasFile('files' . $x)) {
-                    $file = $request->file('files' . $x);
+                // if ($request->hasFile('files' . $x)) {
+                    $file = $request->file('files')[$x];
+                    // $file = $request->file('files' . $x);
                     $filename = $file->getClientOriginalName();
                     $filename1 = substr($filename, 0, -4);
                     $merchant_code = substr($filename1, 0, 17);
                     $TRN_DATE = substr($filename1, 17, 6);
                     $TER_NO = substr($filename1, 23, 3);
-
+                   
                     $start3 = substr($filename, 0, 3);
                     $errlogs = "";
                     foreach (file($file) as $y) {
@@ -146,15 +149,15 @@ class CheckerController extends Controller
                                     $CheckerModel->logs($params);
                                 }
                             }
-
                             ### end format validate
                             if ($error == 0) {
                                 $transaction = $CheckerModel->transaction($tmp, $array, $final, $x, $filename);
                                 $res = (new TransactionController)->insertTransaction($transaction);
+                                //  echo "<pre>"; print_r($transaction); "</pre>";
                             }
                         }
                     }
-                }
+                // }
             }
 
             $queryTrans = $Transaction->validateTransaction();
