@@ -33,7 +33,6 @@ class CheckerController extends Controller
     public function checkFile(Request $request)
     {
 
-        // echo "<pre>"; print_r( $request->file('files')); "</pre>"; die;
         TransactionValidation::truncate();
         DailyValidation::truncate();
         CrossValidation::truncate();

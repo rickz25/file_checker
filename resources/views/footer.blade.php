@@ -159,7 +159,7 @@
                     checkerlogs.draw();
                     $('#alert-nottally').show();
                     $('#alert-nottally').delay(6000).fadeOut('slow');
-                    // }
+                    
                 },
                 beforeSend: function() {
                     $('#loading').show();
@@ -174,6 +174,7 @@
                 },
                 error: (data) => {
                     console.log(data);
+                    alert('Error Uploading.')
 
                 }
             });
