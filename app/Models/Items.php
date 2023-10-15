@@ -15,12 +15,13 @@ class Items extends Model
         $TRANSACTION_NO = isset($data['TRANSACTION_NO']) ? $data['TRANSACTION_NO'] : '';
         $QTY_SLD = isset($data['QTY_SLD']) ? trim($data['QTY_SLD']) : '';
         $TER_NO = isset($data['TER_NO']) ? trim($data['TER_NO']) : '';
+      
         if(isset($data['ITEMS'])){
-            $total_qty =0;
+            $qty=[];
             foreach($data['ITEMS'] as $sumList){
-                $total_qty += (float)$sumList['QTY'];
-                $total_qty = number_format($total_qty, 3);
+                $qty[] = trim($sumList['QTY']);
             }
+            $total_qty = number_format(array_sum($qty), 3);
             if(floatval($QTY_SLD) !== floatval($total_qty)){
                 $qtyDiff = abs(floatval($QTY_SLD) - floatval($total_qty));
                 $message = 'ITEMS QTY_SLD discrepancy ('.$qtyDiff.')';
@@ -35,5 +36,6 @@ class Items extends Model
                 $Logs->savelogs($param); /**save logs */ 
             }
         }
+   
     }
 }

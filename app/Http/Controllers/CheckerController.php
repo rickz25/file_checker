@@ -16,6 +16,9 @@ use App\Models\Formatter;
 use Illuminate\Http\Client\ConnectionException;
 use File;
 use DateTime;
+ini_set('max_file_uploads', '100000');
+set_time_limit(0);
+ini_set('max_input_time', '30000');
 
 class CheckerController extends Controller
 {
@@ -32,7 +35,6 @@ class CheckerController extends Controller
     }
     public function checkFile(Request $request)
     {
-
         TransactionValidation::truncate();
         DailyValidation::truncate();
         CrossValidation::truncate();
@@ -152,7 +154,7 @@ class CheckerController extends Controller
                             if ($error == 0) {
                                 $transaction = $CheckerModel->transaction($tmp, $array, $final, $x, $filename);
                                 $res = (new TransactionController)->insertTransaction($transaction);
-                                //  echo "<pre>"; print_r($transaction); "</pre>";
+                                //  echo "<pre>"; print_r($res); "</pre>";
                             }
                         }
                     }

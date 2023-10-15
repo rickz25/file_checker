@@ -29,7 +29,6 @@ class TransactionController extends Controller
         $Items = new Items;
         $Transaction = new TransactionValidation;
         $Logs = new Logs;
-        try {
             $Transaction->deleteTransaction($param);
             foreach ($trans_arr as &$values) {
                 $TRANS_NO = trim($values['TRANSACTION_NO']);
@@ -45,9 +44,6 @@ class TransactionController extends Controller
                 $param['filename'] = $filename;
                 $Transaction->saveTransaction($param);
             }
-        } catch (\Exception $e) {
-            $errorMessage .= $e->getMessage();
-        }
         if ($errorMessage != "") {
             $param['type'] = 0;
             $param['error_type'] = 'Transaction';
