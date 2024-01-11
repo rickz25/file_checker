@@ -161,17 +161,18 @@ class Checker extends Model
             if ($header_format[$i][1] == "s") {
                 $data = $tmp[$i][1];
 
-                if ($this->check_string($data)) {
-                    $main_message .= "Wrong datatype " . $tmp[$i][0] . ". <br>";
-                }
                 if ($header_format[$i][0] != "MERCHANT_NAME") {
                     if ($this->check_space($data)) {
                         $main_message .= "Wrong datatype, there has a space " . $tmp[$i][0] . ". <br>";
                     }
+                    if ($this->check_quotation($data)) {
+                        $main_message .= "Wrong datatype, there has a quotation " . $tmp[$i][0] . ". <br>";
+                    }
+                    if ($this->check_string($data)) {
+                        $main_message .= "Wrong datatype " . $tmp[$i][0] . ". <br>";
+                    }
                 }
-                if ($this->check_quotation($data)) {
-                    $main_message .= "Wrong datatype, there has a quotation " . $tmp[$i][0] . ". <br>";
-                }
+                
             }
             if ($header_format[$i][0] == "TRN_DATE") {
                 if ($tmp[$i][1] != $TRN_DATE) {
@@ -479,15 +480,16 @@ class Checker extends Model
                         ## string datatype
                         if ($daily_format[$i][1] == "s") {
                             $data = $tmp[$i][$r];
-                            if ($this->check_string($data)) {
-                                $messages[] = "Wrong datatype " . $daily_format[$i][0] . ". <br>";
-                            }
+                           
                             if ($daily_format[$i][0] != "MERCHANT_NAME") {
                                 if ($this->check_space($data)) {
                                     $messages[] = "Wrong datatype, there has a space " . $daily_format[$i][0] . ". <br>";
                                 }
                                 if ($this->check_quotation($data)) {
                                     $message .= "Wrong datatype, there has a quotation " . $daily_format[$i][0] . ". <br>";
+                                }
+                                if ($this->check_string($data)) {
+                                    $messages[] = "Wrong datatype " . $daily_format[$i][0] . ". <br>";
                                 }
                             }
                         }
