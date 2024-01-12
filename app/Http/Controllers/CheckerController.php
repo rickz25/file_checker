@@ -71,15 +71,17 @@ class CheckerController extends Controller
                         $col = $arr[0];
                         $val = $arr[1];
                         $trim_col = str_replace("'", "", str_replace('"', '', $col));
-                        if (preg_match('/"/', $col) == 1) {
-                            $errlogs .= "There's a quotation in Column " . $trim_col . ".<br>";
-                        } else if (preg_match("/'/", $col) == 1) {
-                            $errlogs .= "There's a quotation in Column " . $trim_col . ".<br>";
-                        }
-                        if (preg_match('/"/', $val) == 1) {
-                            $errlogs .= "There's a quotation in value of " . $trim_col . ".<br>";
-                        } else if (preg_match("/'/", $val) == 1) {
-                            $errlogs .= "There's a quotation in value of " . $trim_col . ".<br>";
+                        if($col != 'MOBILE_NO' && $col != 'MERCHANT_NAME'){
+                            if (preg_match('/"/', $col) == 1) {
+                                $errlogs .= "There's a quotation in Column " . $trim_col . ".<br>";
+                            } else if (preg_match("/'/", $col) == 1) {
+                                $errlogs .= "There's a quotation in Column " . $trim_col . ".<br>";
+                            }
+                            if (preg_match('/"/', $val) == 1) {
+                                $errlogs .= "There's a quotation in value of " . $trim_col . ".<br>";
+                            } else if (preg_match("/'/", $val) == 1) {
+                                $errlogs .= "There's a quotation in value of " . $trim_col . ".<br>";
+                            }
                         }
                     }
 
