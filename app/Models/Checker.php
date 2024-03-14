@@ -197,6 +197,10 @@ class Checker extends Model
                 if ($str1 != $str2) {
                     $main_message .= "Incorrect Format Column " . $tmp[$i][0] . " instead of " . $header_format[$i][0] . ". <br>";
                 }
+                $format = Formatter::where('id', 1)->first();
+                if(strlen(trim($tmp[$i][1])) > $format->merchant_code_length){
+                    $main_message .= "Incorrect Format CCCODE Length (" . strlen(trim($tmp[$i][1])) . ") instead of (" . $format->merchant_code_length . "). <br>";
+                }
             } else {
                 if ($header_format[$i][0] != $tmp[$i][0]) {
                     $main_message .= "Incorrect Format Column " . $tmp[$i][0] . " instead of " . $header_format[$i][0] . ". <br>";
@@ -205,10 +209,7 @@ class Checker extends Model
             if ($tmp[$i][1] == "") {
                 $main_message .= "Empty Column " . $tmp[$i][0] . ". <br>";
             }
-            $format = Formatter::where('id', 1)->first();
-            if(strlen(trim($tmp[$i][1])) > $format->merchant_code_length){
-                $main_message .= "Incorrect Format CCCODE Length (" . strlen(trim($tmp[$i][1])) . ") instead of (" . $format->merchant_code_length . "). <br>";
-            }
+           
         }
 
         if ($main_message != "") {
@@ -317,8 +318,10 @@ class Checker extends Model
                         if ($this->check_string($data)) {
                             $messages[] = "Wrong datatype " . $items[$r][$i][0] . ". <br>";
                         }
-                        if ($this->check_space($data)) {
-                            $messages[] = "Wrong datatype, there has a space " . $items[$r][$i][0] . ". <br>";
+                        if($items_format[$f][0] !='ITEMCODE'){
+                            if ($this->check_space($data)) {
+                                $messages[] = "Wrong datatype, there has a space " . $items[$r][$i][0] . ". <br>";
+                            }
                         }
                         if ($this->check_quotation($data)) {
                             $message .= "Wrong datatype, there has a quotation " . $items[$r][$i][0] . ". <br>";

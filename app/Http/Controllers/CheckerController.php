@@ -117,6 +117,7 @@ class CheckerController extends Controller
                             $error = 0;
                             ### start format validate
                             $validate = $CheckerModel->format_validation_trans($array, $tmp, $filename);
+                            // echo "<pre>"; print_r($validate); "</pre>"; die;
 
                             if ($validate[0] == true) {
                                 $error = 1;
