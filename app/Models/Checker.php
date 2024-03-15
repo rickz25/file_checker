@@ -315,16 +315,17 @@ class Checker extends Model
                     ## string datatype
                     if ($items_format[$f][1] == "s") {
                         $data = $items[$r][$f][1];
-                        if ($this->check_string($data)) {
-                            $messages[] = "Wrong datatype " . $items[$r][$i][0] . ". <br>";
-                        }
+                        
                         if($items_format[$f][0] !='ITEMCODE'){
                             if ($this->check_space($data)) {
                                 $messages[] = "Wrong datatype, there has a space " . $items[$r][$i][0] . ". <br>";
                             }
-                        }
-                        if ($this->check_quotation($data)) {
-                            $message .= "Wrong datatype, there has a quotation " . $items[$r][$i][0] . ". <br>";
+                            if ($this->check_string($data)) {
+                                $messages[] = "Wrong datatype " . $items[$r][$i][0] . ". \r\n";
+                            }
+                            if ($this->check_quotation($data)) {
+                                $message .= "Wrong datatype, there has a quotation " . $items[$r][$i][0] . ". \r\n";
+                            }
                         }
                     }
                     ##
