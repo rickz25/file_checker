@@ -44,7 +44,7 @@ class Checker extends Model
     {
         $final['filename'] = $filename;
         $final['filedata']['CCCODE'] = trim($tmp[0][1]);
-        $final['filedata']['MERCHANT_NAME'] = trim($tmp[1][1]);
+        $final['filedata']['MERCHANT_NAME'] = trim(iconv(mb_detect_encoding($tmp[1][1], mb_detect_order(), true), "UTF-8", $tmp[1][1]));
         $final['filedata']['TRN_DATE'] = $tmp[2][1];
         $final['filedata']['NO_TRN'] = $tmp[3][1];
 
@@ -69,9 +69,12 @@ class Checker extends Model
             while ($index <= $arrayLength && array_keys($array[$index])[0] != "CDATE") {
                 $key = array_keys($array[$index])[0];
                 if ($key == "QTY" || $key == "ITEMCODE" || $key == "PRICE" || $key == "LDISC") {
-                    $subArr[$key] = mb_substr($array[$index][$key], 0, 10, 'utf-8');
+                    $val = mb_substr($array[$index][$key], 0, 10, 'utf-8');
+                    $subArr[$key] = iconv(mb_detect_encoding($val, mb_detect_order(), true), "UTF-8", $val);
                 } else {
-                    $tempArr[$key] = $array[$index][$key];
+                    if($key!="" || $key!=null){
+                        $tempArr[$key] = $array[$index][$key];
+                    }
                 }
                 if (count($subArr) == 4) {
                     $tempArr["ITEMS"][$count] = $subArr;
@@ -85,9 +88,9 @@ class Checker extends Model
         $final['filedata']['TRANSACTION'] = $transactions;
 
         if (isset($final[0])) {
-            return json_encode($final[0]);
+            return json_encode($final[0], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
         } else {
-            $return = json_encode($final);
+            $return = json_encode($final, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
             return trim($return, '[]');
         }
     }
@@ -98,7 +101,7 @@ class Checker extends Model
     
         $final['filename'] = $filename;
         $final['filedata']['CCCODE'] = trim($tmp[0][1]);
-        $final['filedata']['MERCHANT_NAME'] = trim($tmp[1][1]);
+        $final['filedata']['MERCHANT_NAME'] = trim(iconv(mb_detect_encoding($tmp[1][1], mb_detect_order(), true), "UTF-8", $tmp[1][1]));
         $daily = [];
         $terminals = [];
         if (isset($tmp)) {
@@ -128,7 +131,6 @@ class Checker extends Model
         return trim($return, '[]');
     }
 
-    ### format validation
     public function format_validation_trans($array, $tmp, $filename)
     {
         $filename1 = substr($filename, 0, -4);
@@ -138,86 +140,103 @@ class Checker extends Model
         $d = substr($filename, 19, 2);
         $y = substr($filename, 21, 2);
         $TRN_DATE = '20' . $y . '-' . $m . '-' . $d;
-        $main_message = "";
+        $main_message = [];
+        $messages = [];
         ## header transacation validation
         $header_format = config('transaction_format.header');
+
         for ($i = 0; $i < count($header_format); $i++) {
+            $field = $header_format[$i][0];
+            $datatype_header = $header_format[$i][1];
+            $length = $header_format[$i][2];
+
+            $field_in_file = $tmp[$i][0];
+            $value = $tmp[$i][1];
+
+            if ($value == "") {
+                $messages[] = "Empty Column " . $field_in_file . ". \r\n";
+            }
             ## double and float datatype
-            if ($header_format[$i][1] == "d" || $header_format[$i][1] == "f") {
-                $num = $tmp[$i][1];
-                if (is_numeric($num)) {
-                    if (!$this->check_decimal($num)) {
-                        $main_message .= "Wrong decimal " . $tmp[$i][0] . ". <br>";
+            if ($datatype_header == "d" || $datatype_header == "f") {
+                if (is_numeric($value)) {
+                    if (!$this->check_decimal($value)) {
+                        $messages[] = "Wrong decimal " . $field . ". \r\n";
                     }
                 } else {
-                    $main_message .= "Wrong datatype " . $tmp[$i][0] . ". <br>";
+                    $messages[] = "Wrong datatype " . $field . ". \r\n";
                 }
-                if ($this->check_space($num)) {
-                    $main_message .= "Wrong datatype, there has a space " . $tmp[$i][0] . ". <br>";
+                if ($this->check_space($value)) {
+                    $messages[] = "Wrong datatype, there has a space " . $field . ". \r\n";
                 }
             }
+
             ##
             ## string datatype
-            if ($header_format[$i][1] == "s") {
-                $data = $tmp[$i][1];
-
-                if ($header_format[$i][0] != "MERCHANT_NAME") {
+            if ($datatype_header == "s") {
+                $data = iconv(mb_detect_encoding($value, mb_detect_order(), true), "UTF-8", $value);
+                if ($field != "MERCHANT_NAME") {
                     if ($this->check_space($data)) {
-                        $main_message .= "Wrong datatype, there has a space " . $tmp[$i][0] . ". <br>";
+                        $messages[] = "Wrong datatype, there has a space " . $field_in_file . ". \r\n";
                     }
                     if ($this->check_quotation($data)) {
-                        $main_message .= "Wrong datatype, there has a quotation " . $tmp[$i][0] . ". <br>";
+                        $messages[] = "Wrong datatype, there has a quotation " . $field_in_file . ". \r\n";
                     }
                     if ($this->check_string($data)) {
-                        $main_message .= "Wrong datatype " . $tmp[$i][0] . ". <br>";
+                        $messages[] = "Wrong datatype " . $field_in_file . ". \r\n";
                     }
                 }
-                
             }
-            if ($header_format[$i][0] == "TRN_DATE") {
-                if ($tmp[$i][1] != $TRN_DATE) {
-                    $main_message .= "TRN_DATE in filename not equal to " . $header_format[$i][0] . " inside the file. <br>";
+            if ($field == "TRN_DATE") {
+                if ($value != $TRN_DATE) {
+                    $messages[] = "TRN_DATE in filename not equal to " . $field . " inside the file. \r\n";
                 }
             }
             ##
             ## integer or numeric
-            if ($header_format[$i][1] == "i") {
-                $num = $tmp[$i][1];
+            if ($datatype_header == "i") {
+                $num = $value;
                 if (!ctype_digit($num)) {
-                    $main_message .= "Wrong datatype " . $tmp[$i][0] . ". <br>";
+                    $messages[] = "Wrong datatype " . $field_in_file . ". \r\n";
                 }
                 if ($this->check_space($num)) {
-                    $main_message .= "Wrong datatype, there has a space " . $tmp[$i][0] . ". <br>";
+                    $messages[] = "Wrong datatype, there has a space " . $field_in_file . ". \r\n";
                 }
             }
             ##
-            if ($header_format[$i][0] == "CCCODE") {
-                $str1 = preg_replace("/[^a-zA-Z0-9]+/", "", $tmp[$i][0]);
-                $str2 = trim($header_format[$i][0]);
+            if ($field == "CCCODE") {
+                $str1 = preg_replace("/[^a-zA-Z0-9]+/", "", $field_in_file);
+                $str2 = trim($field);
                 if ($str1 != $str2) {
-                    $main_message .= "Incorrect Format Column " . $tmp[$i][0] . " instead of " . $header_format[$i][0] . ". <br>";
-                }
-                $format = Formatter::where('id', 1)->first();
-                if(strlen(trim($tmp[$i][1])) > $format->merchant_code_length){
-                    $main_message .= "Incorrect Format CCCODE Length (" . strlen(trim($tmp[$i][1])) . ") instead of (" . $format->merchant_code_length . "). <br>";
+                    $messages[] = "Incorrect Format Column " . $field_in_file . " instead of " . $field . ". \r\n";
                 }
             } else {
-                if ($header_format[$i][0] != $tmp[$i][0]) {
-                    $main_message .= "Incorrect Format Column " . $tmp[$i][0] . " instead of " . $header_format[$i][0] . ". <br>";
+                if ($field != $field_in_file) {
+                    $messages[] = "Incorrect Format Column " . $field_in_file . " instead of " . $field . ". \r\n";
                 }
             }
-            if ($tmp[$i][1] == "") {
-                $main_message .= "Empty Column " . $tmp[$i][0] . ". <br>";
+            
+            ## Check Length
+            if ($datatype_header == "d") {
+                if($this->checkLength($value, $length)){
+                    $messages[] = $field." digit exceeded, maximum allowed digit is ".($length-3)." with 2 decimal place". ". \r\n";
+                }
+            }else if($datatype_header == "d3"){
+                if($this->checkLength($value, $length)){
+                    $messages[] = $field." digit exceeded, maximum allowed digit is ".($length-4)." with 3 decimal place ". ". \r\n";
+                }
+            }else if($datatype_header == "i"){
+                if($this->checkLength($value, $length)){
+                    $messages[] = $field." digit exceeded, maximum allowed digit is ".$length. ". \r\n";
+                }
+            }else{
+                if($this->checkLength($value, $length)){
+                    $messages[] = $field." length exceeded, maximum allowed length is ".$length .". \r\n";
+                }
             }
-           
+            ##
         }
-
-        if ($main_message != "") {
-            return [true, $main_message];
-        } else {
-
-            $messages = [];
-            $message = "";
+ 
+            $param=[];
             $NO_TRN = (int) $array[3]['NO_TRN'];
             $incrementing = 0;
             $transno = 0;
@@ -235,7 +254,7 @@ class Checker extends Model
                     break;
                 }
                 $key = array_keys($array[$index])[0];
-                $val = array_values($array[$index])[0];
+                $val = iconv(mb_detect_encoding(array_values($array[$index])[0], mb_detect_order(), true), "UTF-8", array_values($array[$index])[0]);
 
                 if ($key == "CDATE") {
                     $index++;
@@ -245,11 +264,13 @@ class Checker extends Model
                 }
                 while ($index <= $arrayLength && array_keys($array[$index])[0] != "CDATE") {
                     $key = array_keys($array[$index])[0];
-                    $val = array_values($array[$index])[0];
+                    $val = iconv(mb_detect_encoding(array_values($array[$index])[0], mb_detect_order(), true), "UTF-8", array_values($array[$index])[0]);
                     if ($key == "QTY" || $key == "ITEMCODE" || $key == "PRICE" || $key == "LDISC") {
                         $item[] = [$key, $val];
                     } else {
-                        $trans[] = [$key, $val];
+                        if($key!="" || $key!=null){
+                            $trans[] = [$key, $val];
+                        }
                         if ($key == "TER_NO") {
                             $terno = $val;
                         }
@@ -264,10 +285,13 @@ class Checker extends Model
             }
             #total transaction validation
             if ($NO_TRN != $incrementing) {
-                $no_trn_validation = [true, $terno, $transno, $NO_TRN, $incrementing];
-            } else {
-                $no_trn_validation = [false, $terno, $transno, $NO_TRN, $incrementing];
+                // $no_trn_validation = [true, $terno, $transno];
+                $messages[] ="NO_TRN not equal to total transaction. TRANSACTION NO ( $transno ), TERMINAL NO ( $terno ). \r\n";
             }
+            // } else {
+            //     $no_trn_validation = [false, $terno, $transno];
+            // }
+
             ## items validation
             $items_format = config('transaction_format.item');
             for ($r = 0; $r < count($items); $r++) {
@@ -276,156 +300,208 @@ class Checker extends Model
                     if ($f == 4) {
                         $f = 0;
                     } //reset after 4 iteration
-                    if ($items[$r][$i][0] != $items_format[$f][0]) {
-                        $messages[] = "Incorrect Format Column " . $items[$r][$i][0] . " instead of " . $items_format[$f][0] . ". <br>";
+                    $item_datatype = $items_format[$f][1];
+                    $item_field = $items_format[$f][0];
+                    $item_length = $items_format[$f][2];
+                    $item_field_in_file = $items[$r][$i][0];
+                    $item_value = $items[$r][$i][1];
+
+                    if ($item_field_in_file != $item_field) {
+                        $messages[] = "Incorrect Format Column " . $item_field_in_file . " instead of " . $item_field . ". \r\n";
                     }
-                    if ($items[$r][$i][1] == "" || $items[$r][$i][1] == null) {
-                        $messages[] = "Empty Column " . $items_format[$f][0] . ". <br>";
+                    if ($item_value == "" || $item_value == null) {
+                        $messages[] = "Empty Column " . $item_field . ". \r\n";
                     }
-                    ## double and float datatype
-                    if ($items_format[$f][1] == "d" || $items_format[$f][1] == "f") {
-                        $num = $items[$r][$i][1];
-                        if (is_numeric($num)) {
-                            if (!$this->check_decimal($num)) {
-                                $messages[] = "Wrong decimal " . $items[$r][$i][0] . ". <br>";
-                            }
-                        } else {
-                            $messages[] = "Wrong datatype " . $items[$r][$i][0] . ". <br>";
-                        }
-                        if ($this->check_space($num)) {
-                            $messages[] = "Wrong datatype, there has a space " . $items[$r][$i][0] . ". <br>";
-                        }
-                    }
-                    ##
-                    ## double 3decimal places
-                    if ($items_format[$f][1] == "d3") {
-                        $num = $items[$r][$i][1];
-                        if (is_numeric($num)) {
-                            if (!$this->check_3_decimal($num)) {
-                                $messages[] = "Wrong decimal " . $items[$r][$i][0] . ". <br>";
-                            }
-                        } else {
-                            $messages[] = "Wrong datatype " . $items[$r][$i][0] . ". <br>";
-                        }
-                        if ($this->check_space($num)) {
-                            $messages[] = "Wrong datatype, there has a space " . $items[$r][$i][0] . ". <br>";
-                        }
-                    }
-                    ##
-                    ## string datatype
-                    if ($items_format[$f][1] == "s") {
-                        $data = $items[$r][$f][1];
-                        
-                        if($items_format[$f][0] !='ITEMCODE'){
-                            if ($this->check_space($data)) {
-                                $messages[] = "Wrong datatype, there has a space " . $items[$r][$i][0] . ". <br>";
-                            }
-                            if ($this->check_string($data)) {
-                                $messages[] = "Wrong datatype " . $items[$r][$i][0] . ". \r\n";
-                            }
-                            if ($this->check_quotation($data)) {
-                                $message .= "Wrong datatype, there has a quotation " . $items[$r][$i][0] . ". \r\n";
-                            }
-                        }
-                    }
-                    ##
+                    
+                    // ## double and float datatype
+                    // if ($item_datatype == "d" || $item_datatype == "f") {
+                    //     $num = $item_value;
+                    //     if (is_numeric($num)) {
+                    //         if (!$this->check_decimal($num)) {
+                    //             $messages[] = "Wrong decimal " . $item_field_in_file . ". \r\n";
+                    //         }
+                    //     } else {
+                    //         $messages[] = "Wrong datatype " . $item_field_in_file . ". \r\n";
+                    //     }
+                    //     if ($this->check_space($num)) {
+                    //         $messages[] = "Wrong datatype, there has a space " . $item_field_in_file . ". \r\n";
+                    //     }
+                    // }
+                    // ##
+                    // ## double 3decimal places
+                    // if ($item_datatype == "d3") {
+                    //     $num = $item_value;
+                    //     if (is_numeric($num)) {
+                    //         if (!$this->check_3_decimal($num)) {
+                    //             $messages[] = "Wrong decimal " . $item_field_in_file . ". \r\n";
+                    //         }
+                    //     } else {
+                    //         $messages[] = "Wrong datatype " . $item_field_in_file . ". \r\n";
+                    //     }
+                    //     if ($this->check_space($num)) {
+                    //         $messages[] = "Wrong datatype, there has a space " . $item_field_in_file . ". \r\n";
+                    //     }
+                    // }
+                    // ##
+                    // ## string datatype
+                    // if ($item_datatype == "s") {
+                    //     $data = iconv(mb_detect_encoding($items[$r][$f][1], mb_detect_order(), true), "UTF-8", $items[$r][$f][1]);
+                    //     if($item_field !='ITEMCODE'){
+                    //         if ($this->check_space($data)) {
+                    //             $messages[] = "Wrong datatype, there has a space " . $item_field_in_file . ". <br>";
+                    //         }
+                    //         if ($this->check_string($data)) {
+                    //             $messages[] = "Wrong datatype " . $item_field_in_file . ". \r\n";
+                    //         }
+                    //         if ($this->check_quotation($data)) {
+                    //             $messages[] = "Wrong datatype, there has a quotation " . $item_field_in_file . ". \r\n";
+                    //         }
+                    //     }
+                    // }
+                    // ##
+                    // ## Check Length
+                    // if ($item_datatype == "d") {
+                    //     if($this->checkLength($item_value, $item_length)){
+                    //         $messages[] = $item_field." digit exceeded, maximum allowed digit is ".($item_length-3)." with 2 decimal place". ". \r\n";
+                    //     }
+                    // }else if($item_datatype == "d3"){
+                    //     if($this->checkLength($item_value, $item_length)){
+                    //         $messages[] = $item_field." digit exceeded, maximum allowed digit is ".($item_length-4)." with 3 decimal place ". ". \r\n";
+                    //     }
+                    // }else if($item_datatype == "i"){
+                    //     if($this->checkLength($item_value, $item_length)){
+                    //         $messages[] = $item_field." digit exceeded, maximum allowed digit is ".$item_length. ". \r\n";
+                    //     }
+                    // }else{
+                    //     if($this->checkLength($item_value, $item_length)){
+                    //         $messages[] = $item_field." length exceeded, maximum allowed length is ".$item_length .". \r\n";
+                    //     }
+                    // }
+                    // ##
                     $f++;
                 }
             }
 
-            if (!empty($messages)) {
-                foreach (array_unique($messages) as $m) {
-                    $message .= $m;
-                }
-            }
             ## end items
 
+            
             ## body transaction validation
             $transaction_format = config('transaction_format.transaction');
-            $messages = [];
+            $message="";
             $TRANS_NO = [];
             for ($r = 0; $r < count($transaction); $r++) {
                 for ($i = 0; $i < count($transaction[$r]); $i++) {
-                    if (isset($transaction_format[$i][0])) {
-                        if ($transaction[$r][$i][0] != $transaction_format[$i][0]) {
-                            $messages[] = "Incorrect Format Column " . $transaction[$r][$i][0] . " instead of " . $transaction_format[$i][0] . ". <br>";
+
+                    $transaction_field = $transaction_format[$i][0];
+                    $transaction_datatype = $transaction_format[$i][1];
+                    $transaction_length = $transaction_format[$i][2];
+                    $transaction_field_in_file = $transaction[$r][$i][0];
+                    $transaction_value = $transaction[$r][$i][1];
+
+                    if (isset($transaction_field)) {
+                        if ($transaction_field_in_file != $transaction_field) {
+                            $messages[] = "Incorrect Format Column " . $transaction_field_in_file . " instead of " . $transaction_field . ". \r\n";
                         }
-                        if ($transaction[$r][$i][0] != "MOBILE_NO") {
-                            if ($transaction[$r][$i][1] == "") {
-                                $messages[] = "Empty Column " . $transaction_format[$i][0] . ". <br>";
+                        if ($transaction_field_in_file != "MOBILE_NO") {
+                            if ($transaction_value == "") {
+                                $messages[] = "Empty Column " . $transaction_field . ". \r\n";
                             }
                         }
-                        if ($transaction[$r][$i][0] == "TER_NO") {
-                            if (trim($transaction[$r][$i][1]) !== $TER_NO) {
-                                $messages[] = "TER_NO in filename not equal to " . $transaction_format[$i][0] . " inside the file. <br>";
+                        if ($transaction_field_in_file == "TER_NO") {
+                            if (trim($transaction_value) !== $TER_NO) {
+                                $messages[] = "TER_NO in filename not equal to " . $transaction_field . " inside the file. \r\n";
                             }
                         }
-                        if ($transaction[$r][$i][0] == "TRANSACTION_NO") {
-                            if (strlen(trim($transaction[$r][$i][1])) > 15) {
-                                $messages[] = "TRANSACTION_NO should contain maximum of 15 numbers only (" . $transaction[$r][$i][1] . "). <br>";
+                        if ($transaction_field_in_file == "TRANSACTION_NO") {
+                            if (strlen(trim($transaction_value)) > 15) {
+                                $messages[] = "TRANSACTION_NO should contain maximum of 15 numbers only (" . $transaction_value . "). \r\n";
                             }
-                            if ($this->checkColumn($transaction[$r][$i][1], $TRANS_NO)) {
-                                $messages[] = "There are same TRANSACTION_NO (" . $transaction[$r][$i][1] . "). <br>";
+                            if ($this->checkColumn($transaction_value, $TRANS_NO)) {
+                                $messages[] = "There are same TRANSACTION_NO (" . $transaction_value . "). \r\n";
                             }
-                            $TRANS_NO[] = $transaction[$r][$i][1];
+                            $TRANS_NO[] = $transaction_value;
+                        }
+                        if ($transaction_field_in_file == "TRN_TYPE") {
+                            if (strlen(trim($transaction_value)) > 1) {
+                                $messages[] = "TRN_TYPE should contain maximum of 1 Character only (" . $transaction_value . "). <br>";
+                            }
                         }
                         ## double and float datatype
-                        if ($transaction_format[$i][1] == "d" || $transaction_format[$i][1] == "f") {
-                            $num = $transaction[$r][$i][1];
+                        if ($transaction_datatype == "d" || $transaction_datatype == "f") {
+                            $num = $transaction_value;
                             if (is_numeric($num)) {
                                 if (!$this->check_decimal($num)) {
-                                    $messages[] = "Wrong decimal " . $transaction[$r][$i][0] . ". <br>";
+                                    $messages[] = "Wrong decimal " . $transaction_field_in_file . ". \r\n";
                                 }
                             } else {
-                                $messages[] = "Wrong datatype " . $transaction[$r][$i][0] . ". <br>";
+                                $messages[] = "Wrong datatype " . $transaction_field_in_file . ". \r\n";
                             }
                             if ($this->check_space($num)) {
-                                $messages[] = "Wrong datatype, there has a space " . $transaction[$r][$i][0] . ". <br>";
+                                $messages[] = "Wrong datatype, there has a space " . $transaction_field_in_file . ". \r\n";
                             }
                         }
                         ##
                         ## double 3decimal places
-                        if ($transaction_format[$i][1] == "d3") {
-                            $num = $transaction[$r][$i][1];
+                        if ($transaction_datatype == "d3") {
+                            $num = $transaction_value;
                             if (is_numeric($num)) {
                                 if (!$this->check_3_decimal($num)) {
-                                    $messages[] = "Wrong decimal " . $transaction[$r][$i][0] . ". <br>";
+                                    $messages[] = "Wrong decimal " . $transaction_field_in_file . ". \r\n";
                                 }
                             } else {
-                                $messages[] = "Wrong datatype " . $transaction[$r][$i][0] . ". <br>";
+                                $messages[] = "Wrong datatype " . $transaction_field_in_file . ". \r\n";
                             }
                             if ($this->check_space($num)) {
-                                $messages[] = "Wrong datatype, there has a space " . $transaction[$r][$i][0] . ". <br>";
+                                $messages[] = "Wrong datatype, there has a space " . $transaction_field_in_file . ". \r\n";
                             }
                         }
                         ##
                         ## string datatype
-                        if ($transaction_format[$i][1] == "s") {
-                            $data = $transaction[$r][$i][1];
+                        if ($transaction_datatype == "s") {
+                            $data = iconv(mb_detect_encoding($transaction_value, mb_detect_order(), true), "UTF-8", $transaction_value);
                             if ($this->check_string($data)) {
-                                $messages[] = "Wrong datatype " . $transaction[$r][$i][0] . ". <br>";
+                                $messages[] = "Wrong datatype " . $transaction_field_in_file . ". \r\n";
                             }
                             if ($this->check_space($data)) {
-                                $messages[] = "Wrong datatype, there has a space " . $transaction[$r][$i][0] . ". <br>";
+                                $messages[] = "Wrong datatype, there has a space " . $transaction_field_in_file . ". \r\n";
                             }
                             if ($this->check_quotation($data)) {
-                                $message .= "Wrong datatype, there has a quotation " . $transaction[$r][$i][0] . ". <br>";
+                                $messages[] = "Wrong datatype, there has a quotation " . $transaction_field_in_file . ". \r\n";
                             }
                         }
                         ##
                         ## integer or numeric
-                        if ($transaction_format[$i][1] == "i") {
-                            $num = $transaction[$r][$i][1];
+                        if ($transaction_datatype == "i") {
+                            $num = $transaction_value;
                             if (!ctype_digit($num)) {
-                                $messages[] = "Wrong datatype " . $transaction[$r][$i][0] . ". <br>";
+                                $messages[] = "Wrong datatype " . $transaction_field_in_file . ". \r\n";
                             }
                             if ($this->check_space($num)) {
-                                $messages[] = "Wrong datatype, there has a space " . $transaction[$r][$i][0] . ". <br>";
+                                $messages[] = "Wrong datatype, there has a space " . $transaction_field_in_file . ". \r\n";
+                            }
+                        }
+                        ##
+                        ## Check Length
+                        if ($transaction_datatype == "d") {
+                            if($this->checkLength($transaction_value, $transaction_length)){
+                                $messages[] = $transaction_field." digit exceeded, maximum allowed digit is ".($transaction_length-3)." with 2 decimal place". ". \r\n";
+                            }
+                        }else if($transaction_datatype == "d3"){
+                            if($this->checkLength($transaction_value, $transaction_length)){
+                                $messages[] = $transaction_field." digit exceeded, maximum allowed digit is ".($transaction_length-4)." with 3 decimal place ". ". \r\n";
+                            }
+                        }else if($transaction_datatype == "i"){
+                            if($this->checkLength($transaction_value, $transaction_length)){
+                                $messages[] = $transaction_field." digit exceeded, maximum allowed digit is ".$transaction_length. ". \r\n";
+                            }
+                        }else{
+                            if($this->checkLength($transaction_value, $transaction_length)){
+                                $messages[] = $transaction_field." length exceeded, maximum allowed length is ".$transaction_length .". \r\n";
                             }
                         }
                         ##
                     } else {
-                        $messages[] = "Out of format file " . $transaction[$r][$i][0] . ". <br>";
+                        $messages[] = "Out of format file " . $transaction_field_in_file . ". \r\n";
                     }
                 }
             }
@@ -435,16 +511,19 @@ class Checker extends Model
                 }
             }
             ## end
-            return ($message != "") ? [true, $message] : [false, $no_trn_validation];
-        }
+            $param['logs']=$message;
+            $param['terno']=$terno;
+            $param['transno']=$transno;
+            return ($message != "") ? [true, $param] : [false];
     }
+
 
     ### format validation fo daily
     public function format_validation_daily($tmp, $TRN_DATE)
     {
-        
-
         $message = "";
+        $terno="";
+        $no_trn="";
         $daily_format = config('daily_format');
         $messages = [];
         if (isset($tmp)) {
@@ -453,82 +532,107 @@ class Checker extends Model
                     if ($r == 0) {
                         continue;
                     }
-                    if (!isset($tmp[$i][$r])) {
-                        $messages[] = "Empty in Column " . $daily_format[$i][0] . ". <br>";
+
+                    $daily_field = $daily_format[$i][0];
+                    $daily_datatype = $daily_format[$i][1];
+                    $daily_length = $daily_format[$i][2];
+                    $daily_value = $tmp[$i][$r];
+                    $daily_field_file = $tmp[$i][0];
+
+                    if($daily_field_file=='NO_TRN'){
+                        $no_trn = $daily_value;
+                    }
+                    if($daily_field_file=='TER_NO'){
+                        $terno = $daily_value;
+                    }
+
+                    if (!isset($daily_value)) {
+                        $messages[] = "Empty in Column " . $daily_field . ". \r\n";
                     } else {
                         ## double and float datatype
-                        if ($daily_format[$i][1] == "d" || $daily_format[$i][1] == "f") {
-                            $num = $tmp[$i][$r];
+                        if ($daily_datatype == "d" || $daily_datatype == "f") {
+                            $num = $daily_value;
                             if (is_numeric($num)) {
                                 if (!$this->check_decimal($num)) {
-                                    $messages[] = "Wrong decimal " . $daily_format[$i][0] . ". <br>";
+                                    $messages[] = "Wrong decimal " . $daily_field . ". \r\n";
                                 }
                             } else {
-                                $messages[] = "Wrong datatype " . $daily_format[$i][0] . ". <br>";
+                                $messages[] = "Wrong datatype " . $daily_field . ". \r\n";
                             }
                             if ($this->check_space($num)) {
-                                $messages[] = "Wrong datatype, there has a space " . $daily_format[$i][0] . ". <br>";
-                            }
-                        }
-                        ##
-                        
-                        ## CCCODE validation
-                        if ($daily_format[$i][0] == "CCCODE") {
-                            $format = Formatter::where('id', 1)->first();
-                            if(strlen(trim($tmp[$i][$r])) > $format->merchant_code_length){
-                                $message .= "Incorrect Format CCCODE Length (" . strlen(trim($tmp[$i][$r])) . ") instead of (" . $format->merchant_code_length . "). <br>";
+                                $messages[] = "Wrong datatype, there has a space " . $daily_field . ". \r\n";
                             }
                         }
                         ##
 
                         ## string datatype
-                        if ($daily_format[$i][1] == "s") {
-                            $data = $tmp[$i][$r];
+                        if ($daily_datatype == "s") {
+                            $data = iconv(mb_detect_encoding($daily_value, mb_detect_order(), true), "UTF-8", $daily_value);
                            
-                            if ($daily_format[$i][0] != "MERCHANT_NAME") {
+                            if ($daily_field != "MERCHANT_NAME") {
                                 if ($this->check_space($data)) {
-                                    $messages[] = "Wrong datatype, there has a space " . $daily_format[$i][0] . ". <br>";
+                                    $messages[] = "Wrong datatype, there has a space " . $daily_field . ". \r\n";
                                 }
                                 if ($this->check_quotation($data)) {
-                                    $message .= "Wrong datatype, there has a quotation " . $daily_format[$i][0] . ". <br>";
+                                    $messages[] = "Wrong datatype, there has a quotation " . $daily_field . ". \r\n";
                                 }
                                 if ($this->check_string($data)) {
-                                    $messages[] = "Wrong datatype " . $daily_format[$i][0] . ". <br>";
+                                    $messages[] = "Wrong datatype " . $daily_field . ". \r\n";
                                 }
                             }
                         }
-                        if ($daily_format[$i][0] == "TRN_DATE") {
-                            if ($tmp[$i][$r] != $TRN_DATE) {
-                                $message .= "TRN_DATE in filename not equal to " . $daily_format[$i][0] . " inside the file. <br>";
+                        if ($daily_field == "TRN_DATE") {
+                            if ($daily_value != $TRN_DATE) {
+                                $messages[] = "TRN_DATE in filename not equal to " . $daily_field . " inside the file. \r\n";
                             }
                         }
-                        if ($daily_format[$i][0] == "STRANS" || $daily_format[$i][0] == "ETRANS") {
-                            if (strlen(trim($tmp[$i][$r])) > 15) {
-                                $messages[] = $daily_format[$i][0] . " should contain maximum of 15 numbers only (" . $tmp[$i][$r] . "). <br>";
+                        if ($daily_field == "STRANS" || $daily_field == "ETRANS") {
+                            if (strlen(trim($daily_value)) > 15) {
+                                $messages[] = $daily_field . " should contain maximum of 15 numbers only (" . $daily_value . "). \r\n";
                             }
                         }
                         ##
 
                         ## integer or numeric
-                        if ($daily_format[$i][1] == "i") {
-                            $num = $tmp[$i][$r];
+                        if ($daily_datatype == "i") {
+                            $num = $daily_value;
                             if (!ctype_digit($num)) {
-                                $messages[] = "Wrong datatype " . $tmp[$i][0] . ". <br>";
+                                $messages[] = "Wrong datatype " . $daily_field_file . ". \r\n";
                             }
                             if ($this->check_space($num)) {
-                                $messages[] = "Wrong datatype, there has a space " . $tmp[$i][0] . ". <br>";
+                                $messages[] = "Wrong datatype, there has a space " . $daily_field_file . ". \r\n";
                             }
                         }
                         ##
-                        if ($daily_format[$i][0] == "CCCODE") {
-                            $str1 = preg_replace("/[^a-zA-Z0-9]+/", "", $tmp[$i][0]);
-                            $str2 = trim($daily_format[$i][0]);
+                        ## Check Length
+                        if ($daily_datatype == "d") {
+                            if($this->checkLength($daily_value, $daily_length)){
+                                 $messages[] = $daily_field." digit exceeded, maximum allowed digit is ".($daily_length-3)." with 2 decimal place". ". \r\n";
+                            }
+                        }else if($daily_datatype == "d3"){
+                            if($this->checkLength($daily_value, $daily_length)){
+                                 $messages[] = $daily_field." digit exceeded, maximum allowed digit is ".($daily_length-4)." with 3 decimal place ". ". \r\n";
+                            }
+                        }else if($daily_datatype == "i"){
+                            if($this->checkLength($daily_value, $daily_length)){
+                                 $messages[] = $daily_field." digit exceeded, maximum allowed digit is ".$daily_length. ". \r\n";
+                            }
+                        }else{
+                            if($this->checkLength($daily_value, $daily_length)){
+                                 $messages[] = $daily_field." length exceeded, maximum allowed length is ".$daily_length .". \r\n";
+                            }
+                        }
+                        ##
+
+                        if ($daily_field == "CCCODE") {
+                            $str1 = preg_replace("/[^a-zA-Z0-9]+/", "", $daily_field_file);
+                            $str2 = trim($daily_field);
                             if ($str1 != $str2) {
-                                $message .= "Incorrect Format Column " . $tmp[$i][0] . " instead of " . $daily_format[$i][0] . ". <br>";
+                                $messages[] = "Incorrect Format Column " . $daily_field_file . " instead of " . $daily_field . ". \r\n";
                             }
                         } else {
-                            if ($tmp[$i][0] != $daily_format[$i][0]) {
-                                $messages[] = "Incorrect Format Column " . $tmp[$i][0] . " instead of " . $daily_format[$i][0] . ". <br>";
+                            if ($daily_field_file != $daily_field) {
+                                $messages[] = "Incorrect Format Column " . $daily_field_file . " instead of " . $daily_field . ". \r\n";
                             }
                         }
                     }
@@ -539,7 +643,10 @@ class Checker extends Model
                     $message .= $m;
                 }
             }
-            return ($message != "") ? [true, $message] : [false];
+            $param['logs']=$message;
+            $param['terno']=$terno;
+            $param['no_trn']=$no_trn;
+            return ($message != "") ? [true, $param] : [false];
         }
     }
     ### End
@@ -587,5 +694,8 @@ class Checker extends Model
     function checkColumn($formatColumn, $arrColumn)
     {
         return array_search(trim($formatColumn), $arrColumn) !== false ? true : false;
+    }
+    function checkLength($str, $len){
+        return strlen(trim($str)) > $len ? true : false;
     }
 }

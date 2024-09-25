@@ -121,38 +121,39 @@ class CheckerController extends Controller
 
                             if ($validate[0] == true) {
                                 $error = 1;
-                                $logs = $validate[1];
+                                $logs = $validate[1]['logs'];
                                 $params['error_type'] = 'Format';
                                 $params['filename'] = $filename;
                                 $params['merchant_code'] = $merchant_code;
                                 $params['logs'] = $logs;
                                 $CheckerModel->logs($params);
 
-                            } else {
+                            } 
+                            // else {
 
-                                if ($validate[1][0]) {
-                                    ## Number of transaction validation
-                                    $m = substr($TRN_DATE, 0, 2);
-                                    $d = substr($TRN_DATE, 2, 2);
-                                    $y = substr($TRN_DATE, 4, 2);
-                                    $trndate = '20' . $y . '-' . $m . '-' . $d;
+                            //     if ($validate[1][0]) {
+                            //         ## Number of transaction validation
+                            //         $m = substr($TRN_DATE, 0, 2);
+                            //         $d = substr($TRN_DATE, 2, 2);
+                            //         $y = substr($TRN_DATE, 4, 2);
+                            //         $trndate = '20' . $y . '-' . $m . '-' . $d;
 
-                                    $error = 1;
-                                    $terno = $validate[1][1];
-                                    $transno = $validate[1][2];
-                                    $no_trn = $validate[1][3];
-                                    $total_trn = $validate[1][4];
-                                    $logs = "NO_TRN ($no_trn) not equal to total transaction ($total_trn).";
-                                    $params['error_type'] = 'Transaction';
-                                    $params['filename'] = $filename;
-                                    $params['merchant_code'] = $merchant_code;
-                                    $params['trn_date'] = $trndate;
-                                    $params['trn_no'] = $transno;
-                                    $params['ter_no'] = $terno;
-                                    $params['logs'] = $logs;
-                                    $CheckerModel->logs($params);
-                                }
-                            }
+                            //         $error = 1;
+                            //         $terno = $validate[1][1];
+                            //         $transno = $validate[1][2];
+                            //         $no_trn = $validate[1][3];
+                            //         $total_trn = $validate[1][4];
+                            //         $logs = "NO_TRN ($no_trn) not equal to total transaction ($total_trn).";
+                            //         $params['error_type'] = 'Transaction';
+                            //         $params['filename'] = $filename;
+                            //         $params['merchant_code'] = $merchant_code;
+                            //         $params['trn_date'] = $trndate;
+                            //         $params['trn_no'] = $transno;
+                            //         $params['ter_no'] = $terno;
+                            //         $params['logs'] = $logs;
+                            //         $CheckerModel->logs($params);
+                            //     }
+                            // }
                             ### end format validate
                             if ($error == 0) {
                                 $transaction = $CheckerModel->transaction($tmp, $array, $final, $x, $filename);
@@ -325,7 +326,7 @@ class CheckerController extends Controller
                             $validate = $CheckerModel->format_validation_daily($tmp, $DATE);
                             if ($validate[0] == true) {
                                 $error = 1;
-                                $logs = $validate[1];
+                                $logs = $validate[1]['logs'];
                                 $params['error_type'] = 'Format';
                                 $params['filename'] = $filename;
                                 $params['logs'] = $logs;
