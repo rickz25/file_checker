@@ -60,6 +60,7 @@
                         destroy: true,
                         "scrollX": true,
                         "scrollCollapse": true,
+                        "order": [[ 0, "desc" ]],
                         processing: true,
                         dom: 'Bfrtip',
                         buttons: [{

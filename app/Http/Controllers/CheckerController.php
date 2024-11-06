@@ -71,7 +71,7 @@ class CheckerController extends Controller
                         $col = $arr[0];
                         $val = $arr[1];
                         $trim_col = str_replace("'", "", str_replace('"', '', $col));
-                        if($col != 'MOBILE_NO' && $col != 'MERCHANT_NAME'){
+                        if($col != 'MOBILE_NO' && $col != 'MERCHANT_NAME' && 'ITEMCODE'){
                             if (preg_match('/"/', $col) == 1) {
                                 $errlogs .= "There's a quotation in Column " . $trim_col . ".<br>";
                             } else if (preg_match("/'/", $col) == 1) {
@@ -112,53 +112,24 @@ class CheckerController extends Controller
 
                     } else {
 
+                        ### START TRANSACTION
                         if ($start3 != "EOD") {
-                            ### START TRANSACTION
-                            $error = 0;
+                            
                             ### start format validate
                             $validate = $CheckerModel->format_validation_trans($array, $tmp, $filename);
-                            // echo "<pre>"; print_r($validate); "</pre>"; die;
-
+                        
                             if ($validate[0] == true) {
-                                $error = 1;
                                 $logs = $validate[1]['logs'];
                                 $params['error_type'] = 'Format';
                                 $params['filename'] = $filename;
                                 $params['merchant_code'] = $merchant_code;
                                 $params['logs'] = $logs;
                                 $CheckerModel->logs($params);
-
-                            } 
-                            // else {
-
-                            //     if ($validate[1][0]) {
-                            //         ## Number of transaction validation
-                            //         $m = substr($TRN_DATE, 0, 2);
-                            //         $d = substr($TRN_DATE, 2, 2);
-                            //         $y = substr($TRN_DATE, 4, 2);
-                            //         $trndate = '20' . $y . '-' . $m . '-' . $d;
-
-                            //         $error = 1;
-                            //         $terno = $validate[1][1];
-                            //         $transno = $validate[1][2];
-                            //         $no_trn = $validate[1][3];
-                            //         $total_trn = $validate[1][4];
-                            //         $logs = "NO_TRN ($no_trn) not equal to total transaction ($total_trn).";
-                            //         $params['error_type'] = 'Transaction';
-                            //         $params['filename'] = $filename;
-                            //         $params['merchant_code'] = $merchant_code;
-                            //         $params['trn_date'] = $trndate;
-                            //         $params['trn_no'] = $transno;
-                            //         $params['ter_no'] = $terno;
-                            //         $params['logs'] = $logs;
-                            //         $CheckerModel->logs($params);
-                            //     }
-                            // }
                             ### end format validate
-                            if ($error == 0) {
+                            }else{
                                 $transaction = $CheckerModel->transaction($tmp, $array, $final, $x, $filename);
                                 $res = (new TransactionController)->insertTransaction($transaction);
-                                //  echo "<pre>"; print_r($res); "</pre>";
+                                 //  echo "<pre>"; print_r($res); "</pre>";
                             }
                         }
                     }
@@ -320,7 +291,6 @@ class CheckerController extends Controller
 
                         ### START DAILY
                         if ($start3 == "EOD") {
-                            $error = 0;
 
                             ### start format validate
                             $validate = $CheckerModel->format_validation_daily($tmp, $DATE);
@@ -332,12 +302,10 @@ class CheckerController extends Controller
                                 $params['logs'] = $logs;
                                 $params['merchant_code'] = $merchant_code;
                                 $CheckerModel->logs($params);
-                            }
                             ### End format validate
-                            if ($error == 0) {
+                            }else{
                                 $daily = $CheckerModel->daily($tmp, $final, $x, $filename);
                                 $res = ((new DailyController)->insertDaily($daily));
-
                             }
                         }
                     }
