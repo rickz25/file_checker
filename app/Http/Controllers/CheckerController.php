@@ -71,7 +71,7 @@ class CheckerController extends Controller
                         $col = $arr[0];
                         $val = $arr[1];
                         $trim_col = str_replace("'", "", str_replace('"', '', $col));
-                        if($col != 'MOBILE_NO' && $col != 'MERCHANT_NAME' && 'ITEMCODE'){
+                        if($col != 'MOBILE_NO' && $col != 'MERCHANT_NAME' && $col != 'ITEMCODE'){
                             if (preg_match('/"/', $col) == 1) {
                                 $errlogs .= "There's a quotation in Column " . $trim_col . ".<br>";
                             } else if (preg_match("/'/", $col) == 1) {
@@ -249,7 +249,7 @@ class CheckerController extends Controller
                         $col = $arr[0];
                         $val = $arr[1];
                         $trim_col = str_replace("'", "", str_replace('"', '', $col));
-                        if($col != 'MOBILE_NO' && $col != 'MERCHANT_NAME'){
+                        if($col != 'MOBILE_NO' && $col != 'MERCHANT_NAME' && $col != 'ITEMCODE'){
                             if (preg_match('/"/', $col) == 1) {
                                 $errlogs .= "There's a quotation in Column " . $trim_col . ".<br>";
                             } else if (preg_match("/'/", $col) == 1) {
