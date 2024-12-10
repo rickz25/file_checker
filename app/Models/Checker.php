@@ -191,10 +191,10 @@ class Checker extends Model
                 }
                 if ($field == "TRN_DATE") {
                     if ($value != $TRN_DATE) {
-                        $messages[] = "TRN_DATE in filename not equal to " . $field . " inside the file. \r\n";
+                        $messages[] = "TRN_DATE in filename not equal to " . $field . " inside the file. </br>";
                     }
                     if(!$this->isValidDate($value)) {
-                        $messages[] = "$field is invalid Date format ($value). \r\n";
+                        $messages[] = "$field is invalid Date format ($value). </br>";
                     }
                 }
                 ##
@@ -435,12 +435,12 @@ class Checker extends Model
                         }
                         if ($transaction_field_in_file == "TRN_TIME") {
                             if(!$this->checkTime($transaction_value)) {
-                                $messages[] = "$transaction_field_in_file is invalid Time format ($transaction_value). \r\n";
+                                $messages[] = "$transaction_field_in_file is invalid Time format ($transaction_value). </br>";
                             }
                         }
                         if ($transaction_field_in_file == "CDATE") {
                             if(!$this->isValidDate($transaction_value)) {
-                                $messages[] = "$transaction_field_in_file is invalid Date format ($transaction_value). \r\n";
+                                $messages[] = "$transaction_field_in_file is invalid Date format ($transaction_value). </br>";
                             }
                         }
                         if ($transaction_field_in_file == "TRANSACTION_NO") {
@@ -617,7 +617,7 @@ class Checker extends Model
                                         $messages[] = "TRN_DATE in filename not equal to " . $daily_field . " inside the file.</br>";
                                     }
                                     if(!$this->isValidDate($daily_value)) {
-                                        $messages[] = "$daily_field is invalid Date format ($daily_value). \r\n";
+                                        $messages[] = "$daily_field is invalid Date format ($daily_value). </br>";
                                     }
                                 }
                                 if ($daily_field == "STRANS" || $daily_field == "ETRANS") {
