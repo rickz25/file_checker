@@ -191,7 +191,10 @@ class Checker extends Model
                 }
                 if ($field == "TRN_DATE") {
                     if ($value != $TRN_DATE) {
-                        $messages[] = "TRN_DATE in filename not equal to " . $field . " inside the file.</br>";
+                        $messages[] = "TRN_DATE in filename not equal to " . $field . " inside the file. \r\n";
+                    }
+                    if(!$this->isValidDate($value)) {
+                        $messages[] = "$field is invalid Date format ($value). \r\n";
                     }
                 }
                 ##
@@ -430,6 +433,16 @@ class Checker extends Model
                                 $messages[] = "TER_NO in filename not equal to " . $transaction_field . " inside the file.</br>";
                             }
                         }
+                        if ($transaction_field_in_file == "TRN_TIME") {
+                            if(!$this->checkTime($transaction_value)) {
+                                $messages[] = "$transaction_field_in_file is invalid Time format ($transaction_value). \r\n";
+                            }
+                        }
+                        if ($transaction_field_in_file == "CDATE") {
+                            if(!$this->isValidDate($transaction_value)) {
+                                $messages[] = "$transaction_field_in_file is invalid Date format ($transaction_value). \r\n";
+                            }
+                        }
                         if ($transaction_field_in_file == "TRANSACTION_NO") {
                             if (strlen(trim($transaction_value)) > 15) {
                                 $messages[] = "TRANSACTION_NO should contain maximum of 15 numbers only (" . $transaction_value . ").</br>";
@@ -603,6 +616,9 @@ class Checker extends Model
                                     if ($daily_value != $TRN_DATE) {
                                         $messages[] = "TRN_DATE in filename not equal to " . $daily_field . " inside the file.</br>";
                                     }
+                                    if(!$this->isValidDate($daily_value)) {
+                                        $messages[] = "$daily_field is invalid Date format ($daily_value). \r\n";
+                                    }
                                 }
                                 if ($daily_field == "STRANS" || $daily_field == "ETRANS") {
                                     if (strlen(trim($daily_value)) > 15) {
@@ -725,5 +741,11 @@ class Checker extends Model
 
     function checkLength($str, $minlen){
         return ((int) strpos(($str), ".")) > $minlen ? true : false;
+    }
+    ###check time format
+    function checkTime($time){
+        $format1 = preg_match("/^(?:2[0-3]|[01][0-9]):[0-5][0-9]$/", trim($time));
+        $format2 = preg_match("/^(?:2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]$/", trim($time));
+        return ($format1==true || $format2==true) ? true : false;
     }
 }

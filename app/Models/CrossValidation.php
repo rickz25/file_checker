@@ -50,7 +50,7 @@ class CrossValidation extends Model
                 DB::raw("printf('%.2f', SUM(CAST(CHECK_SLS AS DECIMAL(10,2)))) as check_sls_daily"),
                 DB::raw("printf('%.2f', SUM(CAST(GRAB_SLS AS DECIMAL(10,2))))  as grab_sls_daily"),
                 DB::raw("printf('%.2f', SUM(CAST(FOODPANDA_SLS AS DECIMAL(10,2)))) as foodpanda_sls_daily"),
-                DB::raw("printf('%.2f', SUM(CAST(NEW_GRNTOT - OLD_GRNTOT AS DECIMAL(10,2)))) as sales_total_daly"),
+                DB::raw("printf('%.2f', SUM(CAST(NEW_GRNTOT - OLD_GRNTOT AS DECIMAL(10,2)))) as sales_total_daily"),
                 DB::raw("printf('%.2f', SUM(CAST(((CASH_SLS + OTHER_SLS + CHECK_SLS + GC_SLS + MASTERCARD_SLS + VISA_SLS + AMEX_SLS + DINERS_SLS + JCB_SLS + GCASH_SLS + PAYMAYA_SLS + ALIPAY_SLS + WECHAT_SLS + GRAB_SLS + FOODPANDA_SLS + MASTERDEBIT_SLS + VISADEBIT_SLS + PAYPAL_SLS + ONLINE_SLS + OPEN_SALES + OPEN_SALES_2 + OPEN_SALES_3 + OPEN_SALES_4 + OPEN_SALES_5 + OPEN_SALES_6 + OPEN_SALES_7 + OPEN_SALES_8 + OPEN_SALES_9 + OPEN_SALES_10 + OPEN_SALES_11) - GC_EXCESS) AS DECIMAL(10,2)))) as payment_daily"),
 
                 DB::raw("printf('%.2f', SUM(CAST(GROSS_SLS AS DECIMAL(10,2))) - (SELECT SUM(CAST((CASE WHEN SLS_FLAG = 'S' THEN GROSS_SLS ELSE 0 END) AS DECIMAL(10,2))) from transaction_validations WHERE CCCODE='$CCCODE' AND TRN_DATE='$TRN_DATE' AND TER_NO ='$TER_NO')) as gross"),

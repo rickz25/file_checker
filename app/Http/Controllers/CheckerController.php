@@ -55,9 +55,7 @@ class CheckerController extends Controller
         if ($request->TotalFiles > 0) {
             $arrError = [];
             for ($x = 0; $x < $request->TotalFiles; $x++) {
-                // if ($request->hasFile('files' . $x)) {
                     $file = $request->file('files')[$x];
-                    // $file = $request->file('files' . $x);
                     $filename = $file->getClientOriginalName();
                     $filename1 = substr($filename, 0, -4);
                     $merchant_code = substr($filename1, 0, 17);
@@ -66,12 +64,13 @@ class CheckerController extends Controller
                    
                     $start3 = substr($filename, 0, 3);
                     $errlogs = "";
-                    foreach (file($file) as $y) {
-                        $arr = explode(',', $y);
-                        $col = $arr[0];
-                        $val = $arr[1];
-                        $trim_col = str_replace("'", "", str_replace('"', '', $col));
+                    $file_content = file_get_contents($file);
+                    $tmp = array_map("str_getcsv", preg_split('/\r*\n+|\r+/', $file_content));
+                    foreach ($tmp as $arr) {
+                        $col =  isset($arr[0]) ? $arr[0] : null;
                         if($col != 'MOBILE_NO' && $col != 'MERCHANT_NAME' && $col != 'ITEMCODE'){
+                            $val = isset($arr[1]) ? $arr[1] : null;
+                            $trim_col = str_replace("'", "", str_replace('"', '', $col));
                             if (preg_match('/"/', $col) == 1) {
                                 $errlogs .= "There's a quotation in Column " . $trim_col . ".<br>";
                             } else if (preg_match("/'/", $col) == 1) {
@@ -92,7 +91,6 @@ class CheckerController extends Controller
                         $params['merchant_code'] = $merchant_code;
                         $CheckerModel->logs($params);
                     }
-                    $tmp = array_map('str_getcsv', file($file));
 
                     $arrKeys = array_column($tmp, 0);
                     $arrVals = array_column($tmp, 1);
@@ -114,7 +112,6 @@ class CheckerController extends Controller
 
                         ### START TRANSACTION
                         if ($start3 != "EOD") {
-                            
                             ### start format validate
                             $validate = $CheckerModel->format_validation_trans($array, $tmp, $filename);
                         
@@ -244,12 +241,14 @@ class CheckerController extends Controller
 
                     $start3 = substr($filename, 0, 3);
                     $errlogs = "";
-                    foreach (file($file) as $y) {
-                        $arr = explode(',', $y);
-                        $col = $arr[0];
-                        $val = $arr[1];
+                    $file_content = file_get_contents($file);
+                    $tmp = array_map("str_getcsv", preg_split('/\r*\n+|\r+/', $file_content));
+                    foreach($tmp as $arr){
+                        $col =  isset($arr[0]) ? $arr[0] : null;
                         $trim_col = str_replace("'", "", str_replace('"', '', $col));
                         if($col != 'MOBILE_NO' && $col != 'MERCHANT_NAME' && $col != 'ITEMCODE'){
+                            $val = isset($arr[1]) ? $arr[1] : null;
+                            $trim_col = str_replace("'", "", str_replace('"', '', $col));
                             if (preg_match('/"/', $col) == 1) {
                                 $errlogs .= "There's a quotation in Column " . $trim_col . ".<br>";
                             } else if (preg_match("/'/", $col) == 1) {
@@ -270,7 +269,6 @@ class CheckerController extends Controller
                         $params['logs'] = $errlogs;
                         $CheckerModel->logs($params);
                     }
-                    $tmp = array_map('str_getcsv', file($file));
 
                     $arrKeys = array_column($tmp, 0);
                     $arrVals = array_column($tmp, 1);
@@ -480,7 +478,8 @@ class CheckerController extends Controller
             $result['status'] = 0;
             $result['message'] = 'Not tally';
             $result['logs'] = $logs;
-            return json_encode($result);
+            // return json_encode($result);
+            return response()->json($result, 200);
         }
     }
 

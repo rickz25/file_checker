@@ -55,7 +55,7 @@ class TransactionValidation extends Model
         DB::raw('printf("%.2f", SUM(CAST(MASTERDEBIT_SLS + VISADEBIT_SLS AS DECIMAL(10,2)))) as dcard_sum'),
 
         DB::raw('printf("%.2f", SUM(CAST(GROSS_SLS AS DECIMAL(10,2)))) as gross_sls'),
-        DB::raw('printf("%.2f", SUM(CAST(abs(VAT_AMNT + VATABLE_SLS + NONVAT_SLS + VATEXEMPT_SLS + SCHRGE_AMT) AS DECIMAL(10,2)))) as payment_sls'),
+        DB::raw('printf("%.2f", SUM(CAST(abs(VAT_AMNT + VATABLE_SLS + NONVAT_SLS + VATEXEMPT_SLS + SCHRGE_AMT + OTHER_SCHR) AS DECIMAL(10,2)))) as payment_sls'),
         DB::raw('printf("%.2f", SUM(CAST(CARD_SLS AS DECIMAL(10,2)))) as card_sls'),
         DB::raw('printf("%.2f", SUM(CAST(EPAY_SLS AS DECIMAL(10,2)))) as epay_sls'),
         DB::raw('printf("%.2f", SUM(CAST(DCARD_SLS AS DECIMAL(10,2)))) as dcard_sls'),

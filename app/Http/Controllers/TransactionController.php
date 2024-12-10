@@ -33,7 +33,7 @@ class TransactionController extends Controller
             foreach ($trans_arr as &$values) {
                 $TRANS_NO = trim($values['TRANSACTION_NO']);
                 $TER_NO = trim($values['TER_NO']);
-                $Items->itemLogs($values, $TRN_DATE, $merchant_code, $filename);
+                // $Items->itemLogs($values, $TRN_DATE, $merchant_code, $filename);
                 unset($values["ITEMS"], $values['LDISC'], $values['QTY_SLD']); //remove items in array
 
                 $param['values'] = $values;
