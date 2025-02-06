@@ -249,7 +249,6 @@ class Checker extends Model
         }
  
             $param=[];
-            // $NO_TRN = (int) $array[3]['NO_TRN'];
             $incrementing = 0;
             $transno = 0;
             $terno = 0;
@@ -295,15 +294,6 @@ class Checker extends Model
                 $items[] = $item;
                 $transaction[] = $trans;
             }
-            #total transaction validation
-            // if ($NO_TRN != $incrementing) {
-            //     // $no_trn_validation = [true, $terno, $transno];
-            //     $messages[] ="NO_TRN not equal to total transaction. TRANSACTION NO ( $transno ), TERMINAL NO ( $terno ).</br>";
-            // }
-            // } else {
-            //     $no_trn_validation = [false, $terno, $transno];
-            // }
-
             ## items validation
             $items_format = config('transaction_format.item');
             for ($r = 0; $r < count($items); $r++) {
@@ -434,6 +424,11 @@ class Checker extends Model
                             }
                             if (strlen(trim($transaction_value)) != 3) {
                                 $messages[] = "TER_NO should contain 3 digits only (" . $transaction_value . "). <br>";
+                            }
+                        }
+                        if ($transaction_field_in_file == "MOBILE_NO") {
+                            if (strlen(trim($transaction_value)) > 11) {
+                                $messages[] = "MOBILE_NO should contain maximum of 11 numbers only (" . $transaction_value . ").</br>";
                             }
                         }
                         if ($transaction_field_in_file == "TRN_TIME") {
@@ -742,11 +737,7 @@ class Checker extends Model
     {
         return array_search(trim($formatColumn), $arrColumn) !== false ? true : false;
     }
-
-    // function checkLength($str, $len){
-    //     return strlen(trim($str)) > $len ? true : false;
-    // }
-
+    ### check length
     function checkLength($str, $minlen){
         return ((int) strpos(($str), ".")) > $minlen ? true : false;
     }
