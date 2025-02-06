@@ -249,7 +249,7 @@ class Checker extends Model
         }
  
             $param=[];
-            $NO_TRN = (int) $array[3]['NO_TRN'];
+            // $NO_TRN = (int) $array[3]['NO_TRN'];
             $incrementing = 0;
             $transno = 0;
             $terno = 0;
@@ -296,10 +296,10 @@ class Checker extends Model
                 $transaction[] = $trans;
             }
             #total transaction validation
-            if ($NO_TRN != $incrementing) {
-                // $no_trn_validation = [true, $terno, $transno];
-                $messages[] ="NO_TRN not equal to total transaction. TRANSACTION NO ( $transno ), TERMINAL NO ( $terno ).</br>";
-            }
+            // if ($NO_TRN != $incrementing) {
+            //     // $no_trn_validation = [true, $terno, $transno];
+            //     $messages[] ="NO_TRN not equal to total transaction. TRANSACTION NO ( $transno ), TERMINAL NO ( $terno ).</br>";
+            // }
             // } else {
             //     $no_trn_validation = [false, $terno, $transno];
             // }
@@ -431,6 +431,9 @@ class Checker extends Model
                         if ($transaction_field_in_file == "TER_NO") {
                             if (trim($transaction_value) !== $TER_NO) {
                                 $messages[] = "TER_NO in filename not equal to " . $transaction_field . " inside the file.</br>";
+                            }
+                            if (strlen(trim($transaction_value)) != 3) {
+                                $messages[] = "TER_NO should contain 3 digits only (" . $transaction_value . "). <br>";
                             }
                         }
                         if ($transaction_field_in_file == "TRN_TIME") {
@@ -618,6 +621,11 @@ class Checker extends Model
                                     }
                                     if(!$this->isValidDate($daily_value)) {
                                         $messages[] = "$daily_field is invalid Date format ($daily_value). </br>";
+                                    }
+                                }
+                                if ($daily_field == "TER_NO") {
+                                    if (strlen(trim($daily_value)) != 3) {
+                                        $messages[] = "TER_NO should contain 3 digits only (" . $daily_value . "). <br>";
                                     }
                                 }
                                 if ($daily_field == "STRANS" || $daily_field == "ETRANS") {

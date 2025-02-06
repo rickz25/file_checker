@@ -246,10 +246,10 @@ class CrossValidation extends Model
                     $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
-                if ($q->notrn > 0) {
+                if (abs($q->notrn) > 0) {
                     $error++;
                     $param['type'] = 0;
-                    $message = "Discrepancy (<b style='color:red;'>" . $this->formatted(abs($q->notrn)) . "</b>) NO_TRN (<b>$q->daily_notrn</b>) not equal to total of transaction (<b>$q->daily_notrn</b>)";
+                    $message = "Discrepancy (<b style='color:red;'>" . abs($q->notrn) . "</b>) NO_TRN (<b>$q->daily_notrn</b>) not equal to total of transaction (<b>$q->daily_notrn</b>)";
                     $param['error_description'] = $message;
                     $Logs->savelogs($param); /**save logs */
                 }
