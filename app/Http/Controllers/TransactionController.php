@@ -65,7 +65,7 @@ class TransactionController extends Controller
         $Threshold = ThresholdSettings::where('id', 1)->first();
         $Logs = new Logs;
         $queryTrans = (new TransactionValidation)->validateTransaction();
-        // echo "<pre>"; print_r($queryTrans); "</pre>"; die;
+        $Transaction = new TransactionValidation;
         foreach ($queryTrans as $q) {
             $transaction_no = trim($q->TRANSNO);
             $TER_NO = trim($q->TER_NO);

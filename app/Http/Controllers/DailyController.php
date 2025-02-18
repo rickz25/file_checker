@@ -73,6 +73,7 @@ class DailyController extends Controller
         $Logs = new Logs;
         $CrossValidation = new CrossValidation;
         $queryDaily = (new DailyValidation)->validateDaily();
+        $Daily = new DailyValidation;
         foreach ($queryDaily as $q) {
             $TER_NO = trim($q->TER_NO);
             $merchant_code = trim($q->CCCODE);
